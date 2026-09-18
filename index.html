@@ -94,15 +94,33 @@ const satellite = L.tileLayer(
 );
 
 satellite.addTo(map);
+/* HRANICE KATASTRÁLNÍCH PARCEL ČÚZK */
 
+const katastr = L.tileLayer.wms(
+  'https://services.cuzk.cz/wms/local-km-wms.asp',
+  {
+    layers: 'hranice_parcel',
+    format: 'image/png',
+    transparent: true,
+    version: '1.3.0',
+    maxZoom: 22,
+    attribution: 'ČÚZK'
+  }
+);
+
+katastr.addTo(map);
 
 /* PŘEPÍNÁNÍ MAP */
 
-L.control.layers({
- 'Letecká mapa':satellite,
- 'Klasická mapa':normal
-}).addTo(map);
-
+L.control.layers(
+{
+ 'Letecká mapa': satellite,
+ 'Klasická mapa': normal
+},
+{
+ 'Hranice parcel ČÚZK': katastr
+}
+).addTo(map);
 
 /* ULOŽENÁ POLE */
 
