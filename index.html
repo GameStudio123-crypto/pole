@@ -3,126 +3,473 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#245c32">
+<meta name="theme-color" content="#173f2a">
 
 <title>Moje pole</title>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css">
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css">
 
 <style>
-*{box-sizing:border-box}
-html,body{margin:0;height:100%;font-family:Arial,sans-serif;background:#f4f5f1}
-#map{height:100%;width:100%}
 
-.topbar{
- position:absolute;top:10px;left:52px;right:10px;z-index:1000;
- display:flex;justify-content:space-between;pointer-events:none
+:root{
+ --green:#1f5c3a;
+ --green2:#2f7650;
+ --light:#f3f6f2;
+ --border:#dfe7df;
+ --text:#18251d;
+ --muted:#6d7c72;
+ --orange:#c87824;
 }
-.logo,.menuBtn{
- border-radius:12px;padding:11px 14px;box-shadow:0 2px 10px #555;
- font-weight:bold;pointer-events:auto
+
+*{box-sizing:border-box}
+
+html,body{
+ margin:0;
+ height:100%;
+ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+ color:var(--text);
+ background:var(--light);
 }
-.logo{background:white}
-.menuBtn{border:0;background:#245c32;color:white}
+
+button,input,select,textarea{
+ font:inherit;
+}
+
+button{
+ cursor:pointer;
+}
+
+#map{
+ position:absolute;
+ inset:0;
+}
+
+/* LEAFLET OVLÁDÁNÍ */
+
+.leaflet-top.leaflet-left{
+ top:82px;
+ left:8px;
+}
+
+.leaflet-top.leaflet-right{
+ top:82px;
+ right:8px;
+}
+
+/* HLAVIČKA */
+
+.header{
+ position:absolute;
+ top:0;
+ left:0;
+ right:0;
+ z-index:1500;
+ padding:
+  calc(10px + env(safe-area-inset-top))
+  12px
+  10px;
+ pointer-events:none;
+}
+
+.headerInner{
+ max-width:900px;
+ margin:auto;
+ height:58px;
+ background:rgba(255,255,255,.96);
+ border-radius:18px;
+ box-shadow:0 5px 20px rgba(0,0,0,.18);
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ padding:8px 10px 8px 15px;
+ pointer-events:auto;
+ backdrop-filter:blur(10px);
+}
+
+.brand{
+ display:flex;
+ align-items:center;
+ gap:9px;
+ font-weight:800;
+ font-size:19px;
+}
+
+.brandIcon{
+ width:39px;
+ height:39px;
+ border-radius:12px;
+ background:var(--green);
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-size:22px;
+}
+
+.headerButtons{
+ display:flex;
+ gap:7px;
+}
+
+.headerBtn{
+ border:0;
+ border-radius:12px;
+ padding:10px 12px;
+ font-weight:700;
+ background:#eaf1eb;
+ color:var(--green);
+}
+
+.headerBtn.primary{
+ background:var(--green);
+ color:white;
+}
+
+/* SPODNÍ INFO */
+
+.mapHint{
+ position:absolute;
+ z-index:1000;
+ left:50%;
+ transform:translateX(-50%);
+ bottom:
+  calc(16px + env(safe-area-inset-bottom));
+ background:rgba(24,37,29,.90);
+ color:white;
+ padding:9px 14px;
+ border-radius:20px;
+ font-size:13px;
+ box-shadow:0 3px 12px rgba(0,0,0,.25);
+ max-width:85%;
+ text-align:center;
+ pointer-events:none;
+}
+
+/* PANEL */
 
 .panel{
- position:fixed;display:none;z-index:4000;bottom:0;left:0;right:0;
- max-height:90vh;overflow:auto;background:#f5f5f1;
- border-radius:20px 20px 0 0;box-shadow:0 -4px 25px #555
+ position:fixed;
+ z-index:5000;
+ display:none;
+ background:#f5f7f4;
+ overflow:auto;
+ left:0;
+ right:0;
+ bottom:0;
+ max-height:90vh;
+ border-radius:24px 24px 0 0;
+ box-shadow:0 -7px 35px rgba(0,0,0,.30);
+ padding-bottom:env(safe-area-inset-bottom);
 }
-.panel.open{display:block}
 
-.panelHead{
- position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;
- align-items:center;padding:15px;background:#245c32;color:white
+.panel.open{
+ display:block;
 }
-.panelHead h2{margin:0;font-size:20px}
+
+.panelHeader{
+ position:sticky;
+ top:0;
+ z-index:20;
+ background:rgba(31,92,58,.97);
+ color:white;
+ min-height:63px;
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ padding:12px 15px;
+ backdrop-filter:blur(10px);
+}
+
+.panelHeader h2{
+ font-size:19px;
+ margin:0;
+}
+
 .close{
- width:36px;height:36px;border-radius:50%;border:0;
- background:white;font-size:20px
+ width:38px;
+ height:38px;
+ border:0;
+ border-radius:50%;
+ background:white;
+ color:var(--green);
+ font-size:22px;
+ font-weight:bold;
 }
-.content{padding:14px}
+
+.content{
+ padding:14px;
+}
 
 .card{
- background:white;padding:14px;margin-bottom:12px;border-radius:14px;
- box-shadow:0 1px 6px #ccc
+ background:white;
+ border:1px solid var(--border);
+ border-radius:17px;
+ padding:15px;
+ margin-bottom:12px;
+ box-shadow:0 2px 7px rgba(0,0,0,.06);
 }
 
-.fieldName{font-size:23px;font-weight:bold}
-.area{font-size:18px;color:#526b58;margin-top:5px}
+.fieldTitle{
+ font-size:24px;
+ font-weight:800;
+}
+
+.area{
+ font-size:19px;
+ color:var(--green);
+ font-weight:700;
+ margin-top:5px;
+}
+
+.muted{
+ color:var(--muted);
+ font-size:13px;
+ margin-top:5px;
+}
+
+/* TLAČÍTKA */
 
 .actions{
- display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:15px
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:10px;
+ margin-top:15px;
 }
+
 .action{
- border:0;border-radius:12px;padding:15px 5px;font-weight:bold;
- font-size:16px;background:#e9eee8
-}
-.action span{display:block;font-size:27px;margin-bottom:5px}
-
-.green{background:#245c32!important;color:white!important}
-.orange{background:#b36a19!important;color:white!important}
-.blue{background:#315f8a!important;color:white!important}
-
-label{
- display:block;font-weight:bold;margin-top:13px;margin-bottom:5px
-}
-input,select,textarea{
- width:100%;padding:12px;border:1px solid #aaa;
- border-radius:9px;font-size:16px;background:white
-}
-textarea{min-height:75px}
-
-.save{
- width:100%;margin-top:15px;padding:14px;border:0;border-radius:10px;
- background:#245c32;color:white;font-weight:bold;font-size:16px
+ min-height:86px;
+ border:1px solid var(--border);
+ border-radius:15px;
+ background:#f5f8f5;
+ font-weight:750;
+ font-size:15px;
+ padding:11px 5px;
+ color:var(--text);
 }
 
-.history{
- border-left:5px solid #668267;padding:10px;margin:10px 0;
- background:#f3f5f1;border-radius:7px
+.action span{
+ display:block;
+ font-size:27px;
+ margin-bottom:5px;
 }
-.total{color:#245c32;font-weight:bold;margin-top:5px}
-.small{color:#666;font-size:13px;margin-top:4px}
 
-.fieldButton{
- width:100%;text-align:left;background:white;border:0;border-radius:11px;
- padding:13px;margin-bottom:8px;box-shadow:0 1px 5px #ccc
+.action.split{
+ background:#fff4e8;
+ border-color:#f0d0aa;
+ color:#8a4b0b;
 }
-.fieldButton b{font-size:17px}
+
+.green{
+ background:var(--green)!important;
+ color:white!important;
+ border-color:var(--green)!important;
+}
+
+.blue{
+ background:#35668c!important;
+ color:white!important;
+}
+
+.orange{
+ background:var(--orange)!important;
+ color:white!important;
+}
+
+.fullButton{
+ width:100%;
+ border:0;
+ border-radius:12px;
+ padding:14px;
+ margin-top:10px;
+ font-weight:750;
+ font-size:16px;
+}
 
 .back{
- border:0;padding:9px 12px;border-radius:8px;margin-bottom:10px;
- font-weight:bold
+ border:0;
+ background:#e5ece6;
+ color:var(--green);
+ border-radius:10px;
+ padding:9px 12px;
+ font-weight:700;
+ margin-bottom:11px;
+}
+
+/* FORM */
+
+label{
+ display:block;
+ font-weight:700;
+ margin:14px 0 5px;
+}
+
+input,select,textarea{
+ width:100%;
+ border:1px solid #cbd5cd;
+ background:white;
+ border-radius:11px;
+ padding:12px;
+ font-size:16px;
+}
+
+textarea{
+ min-height:80px;
+ resize:vertical;
+}
+
+/* HISTORIE */
+
+.history{
+ border-left:5px solid #6d9b78;
+ background:#f5f8f4;
+ border-radius:9px;
+ padding:11px 12px;
+ margin:9px 0;
+}
+
+.total{
+ color:var(--green);
+ font-weight:800;
+ margin-top:5px;
+}
+
+.small{
+ color:var(--muted);
+ font-size:13px;
+ margin-top:4px;
+}
+
+/* SEZNAM POLÍ */
+
+.fieldButton{
+ display:block;
+ width:100%;
+ text-align:left;
+ border:1px solid var(--border);
+ background:white;
+ padding:14px;
+ border-radius:13px;
+ margin-bottom:8px;
+}
+
+.fieldButton b{
+ font-size:17px;
+}
+
+/* OSEVNÍ ČÁSTI */
+
+.part{
+ border-radius:13px;
+ padding:13px;
+ margin:9px 0;
+ background:#eef5ed;
+ border:1px solid #d7e5d5;
+}
+
+.partTitle{
+ font-size:17px;
+ font-weight:800;
+}
+
+.partArea{
+ color:var(--green);
+ font-weight:800;
+ margin-top:3px;
+}
+
+.partButtons{
+ display:flex;
+ gap:7px;
+ margin-top:9px;
+}
+
+.miniButton{
+ border:0;
+ border-radius:8px;
+ padding:8px 10px;
+ font-weight:700;
+}
+
+.delete{
+ background:#f6e4e2;
+ color:#a03932;
+}
+
+.zoom{
+ background:#e4eee6;
+ color:var(--green);
 }
 
 .notice{
- background:#fff3c8;padding:10px;border-radius:9px;
- margin-bottom:10px;font-size:14px
+ background:#fff6d9;
+ border:1px solid #eedda2;
+ padding:11px;
+ border-radius:11px;
+ font-size:14px;
+ margin-bottom:11px;
 }
 
-.part{
- padding:12px;border-radius:10px;background:#eef3ea;
- margin:9px 0;border-left:5px solid #7a9b65
+.drawNotice{
+ background:#e8f3ea;
+ border:1px solid #c4dec9;
+ padding:12px;
+ border-radius:12px;
+ line-height:1.45;
 }
 
-.progress{
- height:18px;background:#ddd;border-radius:10px;overflow:hidden;margin-top:10px
-}
-.progressBar{height:100%;background:#5d8651}
-
-.danger{
- background:#a64038;color:white;border:0;border-radius:7px;
- padding:7px 10px;margin-top:8px
+.yearTitle{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ margin-bottom:7px;
 }
 
-@media(min-width:800px){
+.badge{
+ background:#e5eee6;
+ color:var(--green);
+ padding:5px 8px;
+ border-radius:9px;
+ font-size:12px;
+ font-weight:800;
+}
+
+/* BAR */
+
+.bar{
+ height:14px;
+ background:#e2e5e2;
+ border-radius:10px;
+ overflow:hidden;
+ margin:10px 0 4px;
+}
+
+.barInside{
+ height:100%;
+ background:#6e9a72;
+}
+
+/* TABLET */
+
+@media(min-width:760px){
+
  .panel{
-  left:auto;width:500px;right:15px;bottom:15px;
-  border-radius:20px;max-height:92vh
+  left:auto;
+  right:18px;
+  bottom:18px;
+  width:510px;
+  max-height:88vh;
+  border-radius:24px;
  }
+
+ .header{
+  padding-top:12px;
+ }
+
 }
+
 </style>
 </head>
 
@@ -130,51 +477,119 @@ textarea{min-height:75px}
 
 <div id="map"></div>
 
-<div class="topbar">
- <div class="logo">🚜 Moje pole</div>
- <button class="menuBtn" onclick="openFields()">☰ Pole</button>
+<div class="header">
+ <div class="headerInner">
+
+  <div class="brand">
+   <div class="brandIcon">🚜</div>
+   <div>Moje pole</div>
+  </div>
+
+  <div class="headerButtons">
+
+   <button
+    class="headerBtn"
+    onclick="locateMe()">
+    📍
+   </button>
+
+   <button
+    class="headerBtn primary"
+    onclick="openFields()">
+    ☰ Pole
+   </button>
+
+  </div>
+
+ </div>
+</div>
+
+<div id="mapHint" class="mapHint">
+✏️ Nástroje pro kreslení jsou vlevo
 </div>
 
 <div id="panel" class="panel">
- <div class="panelHead">
-  <h2 id="panelTitle">Moje pole</h2>
-  <button class="close" onclick="closePanel()">×</button>
+
+ <div class="panelHeader">
+
+  <h2 id="panelTitle">
+   Moje pole
+  </h2>
+
+  <button
+   class="close"
+   onclick="closePanel()">
+   ×
+  </button>
+
  </div>
- <div id="panelContent" class="content"></div>
+
+ <div
+  id="panelContent"
+  class="content">
+ </div>
+
 </div>
 
-<input type="file" id="importFile" accept=".json,application/json" style="display:none">
+<input
+ type="file"
+ id="importFile"
+ accept=".json,application/json"
+ style="display:none">
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
 
 <script>
 
-/* =========================
+/* ==================================================
    MAPA
-========================= */
+================================================== */
 
-const map=L.map('map').setView([49.55,16.95],13);
+const map=L.map(
+ 'map',
+ {
+  zoomControl:true
+ }
+).setView(
+ [49.55,16.95],
+ 13
+);
 
 const satellite=L.tileLayer(
+
  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
- {maxZoom:20,attribution:'Esri'}
+
+ {
+  maxZoom:20,
+  attribution:'Esri'
+ }
+
 );
 
 const normal=L.tileLayer(
+
  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
- {maxZoom:20,attribution:'© OpenStreetMap'}
+
+ {
+  maxZoom:20,
+  attribution:'© OpenStreetMap'
+ }
+
 );
 
 satellite.addTo(map);
 
 
-/* =========================
-   KATASTR ČÚZK
-========================= */
+/* ==================================================
+   ČÚZK
+================================================== */
 
 const katastr=L.tileLayer.wms(
+
  'https://services.cuzk.gov.cz/wms/local-km-wms.asp',
+
  {
   layers:'hranice_parcel,parcelni_cisla',
   format:'image/png',
@@ -183,371 +598,550 @@ const katastr=L.tileLayer.wms(
   maxZoom:22,
   attribution:'ČÚZK'
  }
+
 );
 
 katastr.addTo(map);
 
 L.control.layers(
+
  {
   '🛰️ Letecká mapa':satellite,
   '🗺️ Klasická mapa':normal
  },
+
  {
-  '📐 Hranice + čísla parcel ČÚZK':katastr
+  '📐 Katastr ČÚZK':katastr
+ },
+
+ {
+  position:'topright'
  }
+
 ).addTo(map);
 
 
-/* =========================
-   MOJE POLE
-========================= */
+/* ==================================================
+   HLAVNÍ POLE
+================================================== */
 
-const fields=new L.FeatureGroup();
+const fields=
+new L.FeatureGroup();
+
 map.addLayer(fields);
 
-function areaCalc(layer){
+
+/* ==================================================
+   OSEVNÍ ČÁSTI NA MAPĚ
+================================================== */
+
+const cropParts=
+new L.FeatureGroup();
+
+map.addLayer(cropParts);
+
+let drawingPartForField=null;
+
+
+/* ==================================================
+   VÝPOČET PLOCHY
+================================================== */
+
+function polygonArea(points){
+
+ if(!points || points.length<3)
+  return 0;
+
+ const R=6378137;
+
+ let area=0;
+
+ for(let i=0;i<points.length;i++){
+
+  const p1=points[i];
+  const p2=points[(i+1)%points.length];
+
+  area+=
+   (p2.lng-p1.lng)*
+   Math.PI/180*
+   (
+    2+
+    Math.sin(p1.lat*Math.PI/180)+
+    Math.sin(p2.lat*Math.PI/180)
+   );
+ }
+
+ return Math.abs(
+  area*R*R/2
+ )/10000;
+}
+
+
+function layerArea(layer){
 
  let pts=layer.getLatLngs();
 
- while(Array.isArray(pts[0])){
+ while(
+  Array.isArray(pts[0]) &&
+  !(pts[0] instanceof L.LatLng)
+ ){
   pts=pts[0];
  }
 
- if(pts.length<3)return 0;
-
- const R=6378137;
- let area=0;
-
- for(let i=0;i<pts.length;i++){
-
-  const p1=pts[i];
-  const p2=pts[(i+1)%pts.length];
-
-  area+=(p2.lng-p1.lng)*Math.PI/180*
-  (
-   2+
-   Math.sin(p1.lat*Math.PI/180)+
-   Math.sin(p2.lat*Math.PI/180)
-  );
- }
-
- return Math.abs(area*R*R/2)/10000;
+ return polygonArea(pts);
 }
 
-function prepare(layer){
+
+/* ==================================================
+   PŘÍPRAVA HLAVNÍHO POLE
+================================================== */
+
+function prepareField(layer){
 
  if(!layer.feature){
-  layer.feature={type:'Feature',properties:{}};
+
+  layer.feature={
+   type:'Feature',
+   properties:{}
+  };
+
  }
 
- const p=layer.feature.properties;
+ const p=
+ layer.feature.properties;
 
- if(!p.id)p.id=Date.now().toString()+Math.random();
- if(!p.name)p.name='Pole';
- if(!p.history)p.history=[];
- if(!p.parts)p.parts=[];
- if(!p.area)p.area=areaCalc(layer);
+ if(!p.id)
+  p.id=uid();
+
+ if(!p.name)
+  p.name='Pole';
+
+ if(!p.history)
+  p.history=[];
+
+ if(!p.parts)
+  p.parts=[];
+
+ if(!p.area)
+  p.area=layerArea(layer);
+
 
  layer.setStyle({
   weight:3,
-  fillOpacity:.20
+  opacity:1,
+  fillOpacity:.14
  });
 
- layer.on('click',function(){
-  openField(p.id);
- });
+
+ layer.on(
+  'click',
+  function(){
+
+   if(drawingPartForField)
+    return;
+
+   openField(p.id);
+
+  }
+ );
+
 }
 
 
-/* =========================
-   ULOŽENÍ / NAČTENÍ
-========================= */
+/* ==================================================
+   ULOŽENÍ
+================================================== */
 
 function save(){
 
  localStorage.setItem(
   'mojePoleData',
-  JSON.stringify(fields.toGeoJSON())
+  JSON.stringify(
+   fields.toGeoJSON()
+  )
  );
+
 }
 
-const old=localStorage.getItem('mojePoleData');
 
-if(old){
+/* ==================================================
+   NAČTENÍ
+================================================== */
+
+const saved=
+localStorage.getItem(
+ 'mojePoleData'
+);
+
+if(saved){
 
  try{
 
-  const data=JSON.parse(old);
+  const data=
+  JSON.parse(saved);
 
-  L.geoJSON(data,{
-   onEachFeature:function(feature,layer){
+  L.geoJSON(
 
-    layer.feature=feature;
+   data,
 
-    if(!feature.properties.history)
-     feature.properties.history=[];
+   {
 
-    if(!feature.properties.parts)
-     feature.properties.parts=[];
+    onEachFeature:
+    function(feature,layer){
 
-    prepare(layer);
-    fields.addLayer(layer);
+     layer.feature=feature;
+
+     if(!feature.properties.history)
+      feature.properties.history=[];
+
+     if(!feature.properties.parts)
+      feature.properties.parts=[];
+
+     prepareField(layer);
+
+     fields.addLayer(layer);
+
+    }
+
    }
-  });
 
- }catch(e){
-  console.error(e);
+  );
+
  }
+ catch(err){
+
+  console.error(err);
+
+ }
+
 }
 
 
-/* =========================
-   RUČNÍ KRESLENÍ
-========================= */
+/* ==================================================
+   VYKRESLENÍ OSEVNÍCH ČÁSTÍ
+================================================== */
 
-const drawControl=new L.Control.Draw({
+function refreshCropParts(){
+
+ cropParts.clearLayers();
+
+ fields.eachLayer(
+  function(fieldLayer){
+
+   const p=
+   fieldLayer.feature.properties;
+
+   (p.parts||[]).forEach(
+    function(part){
+
+     if(
+      !part.geometry ||
+      !part.geometry.coordinates
+     ){
+      return;
+     }
+
+     const feature={
+      type:'Feature',
+      geometry:part.geometry,
+      properties:{}
+     };
+
+     const layer=
+     L.geoJSON(
+      feature,
+      {
+       style:{
+        weight:2,
+        fillOpacity:.36,
+        dashArray:'5,4'
+       }
+      }
+     );
+
+     layer.eachLayer(
+      function(child){
+
+       child.bindTooltip(
+        '🌱 '+part.crop+
+        '<br>'+
+        formatNumber(part.area)+
+        ' ha',
+        {
+         sticky:true
+        }
+       );
+
+       child.on(
+        'click',
+        function(e){
+
+         L.DomEvent.stopPropagation(e);
+
+         openField(p.id);
+
+        }
+       );
+
+      }
+     );
+
+     layer.addTo(cropParts);
+
+    }
+   );
+
+  }
+ );
+
+}
+
+refreshCropParts();
+
+
+/* ==================================================
+   RUČNÍ KRESLENÍ NOVÉHO POLE
+================================================== */
+
+const drawControl=
+new L.Control.Draw({
+
+ position:'topleft',
 
  edit:{
   featureGroup:fields
  },
 
  draw:{
+
   polygon:{
    allowIntersection:false,
    showArea:true
   },
+
   rectangle:false,
   circle:false,
   circlemarker:false,
   marker:false,
   polyline:false
+
  }
+
 });
 
 map.addControl(drawControl);
 
-map.on(L.Draw.Event.CREATED,function(e){
 
- const layer=e.layer;
+map.on(
+ L.Draw.Event.CREATED,
+ function(e){
 
- let name=prompt(
-  'Jak se pole jmenuje?',
-  'Nové pole'
- );
-
- if(!name)name='Nové pole';
-
- layer.feature={
-  type:'Feature',
-  properties:{
-   id:Date.now().toString(),
-   name:name,
-   area:areaCalc(layer),
-   history:[],
-   parts:[],
-   source:'manual'
-  }
- };
-
- prepare(layer);
- fields.addLayer(layer);
- save();
-
- openField(layer.feature.properties.id);
-});
-
-map.on(L.Draw.Event.EDITED,function(e){
-
- e.layers.eachLayer(function(layer){
-  layer.feature.properties.area=areaCalc(layer);
- });
-
- save();
-});
-
-map.on(L.Draw.Event.DELETED,function(){
- save();
-});
+  const layer=e.layer;
 
 
-/* =========================
-   PANEL
-========================= */
+  /* kreslíme část uvnitř pole */
 
-function showPanel(title,html){
+  if(drawingPartForField){
 
- document.getElementById('panelTitle').textContent=title;
- document.getElementById('panelContent').innerHTML=html;
- document.getElementById('panel').classList.add('open');
-}
+   finishCropPart(
+    drawingPartForField,
+    layer
+   );
 
-function closePanel(){
- document.getElementById('panel').classList.remove('open');
-}
+   drawingPartForField=null;
 
+   document
+   .getElementById('mapHint')
+   .textContent=
+   '✏️ Nástroje pro kreslení jsou vlevo';
 
-/* =========================
-   NAJÍT POLE
-========================= */
-
-function findField(id){
-
- let result=null;
-
- fields.eachLayer(function(layer){
-
-  if(
-   layer.feature &&
-   String(layer.feature.properties.id)===String(id)
-  ){
-   result=layer;
+   return;
   }
 
- });
 
- return result;
-}
+  /* normální nové pole */
+
+  let name=
+  prompt(
+   'Jak se pole jmenuje?',
+   'Nové pole'
+  );
+
+  if(!name)
+   name='Nové pole';
 
 
-/* =========================
-   SEZNAM POLÍ
-========================= */
+  layer.feature={
 
-function openFields(){
+   type:'Feature',
 
- let arr=[];
+   properties:{
 
- fields.eachLayer(function(layer){
-  arr.push(layer.feature.properties);
- });
+    id:uid(),
 
- arr.sort((a,b)=>a.name.localeCompare(b.name,'cs'));
+    name:name,
 
- let html=`
+    area:layerArea(layer),
 
- <div class="notice">
-  📐 Hranice a čísla parcel jsou načítány z mapové služby ČÚZK.
-  Tvoje vlastní data jsou zatím uložena v tomto zařízení.
- </div>
+    history:[],
 
- <div class="actions">
+    parts:[],
 
-  <button class="action green" onclick="exportData()">
-   <span>💾</span>
-   Záloha
-  </button>
+    source:'manual'
 
-  <button class="action" onclick="document.getElementById('importFile').click()">
-   <span>📂</span>
-   Obnovit
-  </button>
-
- </div>
-
- <h3>🌾 Moje pole (${arr.length})</h3>
- `;
-
- if(!arr.length){
-  html+=`<p>Zatím nemáš uložené žádné pole.</p>`;
- }
-
- arr.forEach(p=>{
-
-  html+=`
-
-  <button class="fieldButton" onclick="openField('${p.id}')">
-
-   <b>🌾 ${escapeHTML(p.name)}</b><br>
-
-   ${formatNumber(p.area)} ha
-
-   ${
-    p.parts && p.parts.length
-    ? `<div class="small">✂️ Má uložené osevní části</div>`
-    : ''
    }
 
-  </button>
-  `;
- });
-
- showPanel('Moje pole',html);
-}
+  };
 
 
-/* =========================
+  prepareField(layer);
+
+  fields.addLayer(layer);
+
+  save();
+
+  openField(
+   layer.feature.properties.id
+  );
+
+ }
+);
+
+
+map.on(
+ L.Draw.Event.EDITED,
+ function(e){
+
+  e.layers.eachLayer(
+   function(layer){
+
+    layer.feature.properties.area=
+    layerArea(layer);
+
+   }
+  );
+
+  save();
+
+ }
+);
+
+
+map.on(
+ L.Draw.Event.DELETED,
+ function(){
+
+  save();
+
+  refreshCropParts();
+
+ }
+);
+
+
+/* ==================================================
    DETAIL POLE
-========================= */
+================================================== */
 
 function openField(id){
 
- const layer=findField(id);
+ const layer=
+ findField(id);
+
  if(!layer)return;
 
- const p=layer.feature.properties;
+ const p=
+ layer.feature.properties;
 
- if(!p.parts)p.parts=[];
- if(!p.history)p.history=[];
+ const currentYear=
+ new Date().getFullYear();
 
- const history=[...p.history].sort(
-  (a,b)=>String(b.date||'').localeCompare(String(a.date||''))
+ const parts=
+ (p.parts||[])
+ .filter(
+  x=>
+  Number(x.year)===
+  currentYear
  );
 
- const currentYear=new Date().getFullYear();
-
- const currentParts=p.parts.filter(
-  x=>Number(x.year)===currentYear
- );
 
  let html=`
 
- <button class="back" onclick="openFields()">
+ <button
+  class="back"
+  onclick="openFields()">
   ← Všechna pole
  </button>
 
+
  <div class="card">
 
-  <div class="fieldName">
-   🌾 ${escapeHTML(p.name)}
+  <div class="fieldTitle">
+   🌾 ${esc(p.name)}
   </div>
 
   <div class="area">
    ${formatNumber(p.area)} ha
   </div>
 
-  ${
-   currentParts.length
-   ? `<div class="small">
-      ✂️ ${currentParts.length} osevních částí pro ${currentYear}
-      </div>`
-   : ''
-  }
+  <div class="muted">
+   ${parts.length
+    ? '✂️ '+parts.length+
+      ' osevních částí v roce '+
+      currentYear
+    : 'Pole zatím není letos rozdělené'}
+  </div>
+
 
   <div class="actions">
 
-   <button class="action orange" onclick="openParts('${id}')">
+   <button
+    class="action split"
+    onclick="openParts('${id}')">
+
     <span>✂️</span>
-    Rozdělit
+    Rozdělit pole
+
    </button>
 
-   <button class="action" onclick="recordForm('${id}','Setí')">
+
+   <button
+    class="action"
+    onclick="recordForm('${id}','Setí')">
+
     <span>🌱</span>
     Setí
+
    </button>
 
-   <button class="action" onclick="recordForm('${id}','Hnojení')">
+
+   <button
+    class="action"
+    onclick="recordForm('${id}','Hnojení')">
+
     <span>🚜</span>
     Hnojení
+
    </button>
 
-   <button class="action" onclick="recordForm('${id}','Postřik')">
+
+   <button
+    class="action"
+    onclick="recordForm('${id}','Postřik')">
+
     <span>💧</span>
     Postřik
+
    </button>
 
-   <button class="action" onclick="recordForm('${id}','Sklizeň')">
+
+   <button
+    class="action"
+    onclick="recordForm('${id}','Sklizeň')">
+
     <span>🌾</span>
     Sklizeň
+
    </button>
 
   </div>
@@ -559,439 +1153,785 @@ function openField(id){
 
   <h3>📋 Historie</h3>
 
- `;
+  ${historyHTML(p)}
 
- if(!history.length){
-  html+=`<p>Zatím bez záznamů.</p>`;
- }
-
- history.forEach(r=>{
-  html+=historyHTML(r,p.area,p);
- });
-
- html+=`
  </div>
+
 
  <div class="card">
 
-  <button class="save" onclick="renameField('${id}')">
+  <button
+   class="fullButton green"
+   onclick="zoomField('${id}')">
+   🗺️ Ukázat pole na mapě
+  </button>
+
+  <button
+   class="fullButton"
+   onclick="renameField('${id}')">
    ✏️ Přejmenovat pole
   </button>
 
  </div>
+
  `;
 
- showPanel(p.name,html);
+ showPanel(
+  p.name,
+  html
+ );
+
 }
 
 
-/* =========================
+/* ==================================================
    ROZDĚLENÍ POLE
-========================= */
+================================================== */
 
 function openParts(id){
 
- const layer=findField(id);
+ const layer=
+ findField(id);
+
  if(!layer)return;
 
- const p=layer.feature.properties;
+ const p=
+ layer.feature.properties;
 
- if(!p.parts)p.parts=[];
+ if(!p.parts)
+  p.parts=[];
 
- const defaultYear=new Date().getFullYear();
+ const years=[
+  ...new Set(
+   p.parts.map(
+    x=>Number(x.year)
+   )
+  )
+ ];
 
- let years=[...new Set(
-  p.parts.map(x=>Number(x.year))
- )];
+ const currentYear=
+ new Date().getFullYear();
 
- if(!years.includes(defaultYear)){
-  years.push(defaultYear);
- }
+ if(!years.includes(currentYear))
+  years.push(currentYear);
 
- years.sort((a,b)=>b-a);
+ years.sort(
+  (a,b)=>b-a
+ );
+
 
  let html=`
 
- <button class="back" onclick="openField('${id}')">
-  ← Zpět na pole
+ <button
+  class="back"
+  onclick="openField('${id}')">
+  ← Zpět
  </button>
+
 
  <div class="card">
 
-  <div class="fieldName">
-   ✂️ Rozdělení pole
+  <div class="fieldTitle">
+   ✂️ Osevní části
   </div>
 
   <div class="area">
-   ${formatNumber(p.area)} ha celkem
+   ${formatNumber(p.area)} ha
   </div>
 
-  <p>
-   Jedno pole můžeš mít v jednom roce rozdělené na více plodin.
-   Rozdělení se ukládá podle roku, takže příští rok může být úplně jiné.
-  </p>
+  <div class="drawNotice">
+
+   <b>Jak to funguje:</b><br>
+
+   Stiskni tlačítko níže.
+   Panel se zavře a na mapě
+   nakreslíš hranici části pole.
+
+   <br><br>
+
+   Aplikace sama spočítá
+   její výměru.
+
+  </div>
+
+
+  <button
+   class="fullButton orange"
+   onclick="startDrawPart('${id}')">
+
+   ✏️ Nakreslit osevní část na mapě
+
+  </button>
 
  </div>
 
+ `;
 
- <div class="card">
 
-  <h3>➕ Přidat osevní část</h3>
+ years.forEach(
+  function(year){
 
-  <label>Rok</label>
+   const yearParts=
+   p.parts.filter(
+    x=>Number(x.year)===year
+   );
 
-  <input
-   id="partYear"
-   type="number"
-   value="${defaultYear}">
 
-  <label>Název části</label>
+   if(!yearParts.length)
+    return;
 
-  <input
-   id="partName"
-   placeholder="např. Horní část">
+
+   const total=
+   yearParts.reduce(
+    (s,x)=>
+    s+Number(x.area||0),
+    0
+   );
+
+
+   const percent=
+   Math.min(
+    100,
+    (total/Number(p.area))*100
+   );
+
+
+   html+=`
+
+   <div class="card">
+
+    <div class="yearTitle">
+
+     <h3 style="margin:0">
+      📅 ${year}
+     </h3>
+
+     <div class="badge">
+      ${formatNumber(total)} ha
+     </div>
+
+    </div>
+
+
+    <div class="bar">
+
+     <div
+      class="barInside"
+      style="width:${percent}%">
+     </div>
+
+    </div>
+
+
+    <div class="small">
+
+     Z celého pole:
+     ${formatNumber(total)}
+     /
+     ${formatNumber(p.area)}
+     ha
+
+    </div>
+
+   `;
+
+
+   yearParts.forEach(
+    function(part){
+
+     html+=`
+
+     <div class="part">
+
+      <div class="partTitle">
+       🌱 ${esc(part.crop)}
+      </div>
+
+      ${
+       part.variety
+       ?
+       `<div class="small">
+        Odrůda:
+        ${esc(part.variety)}
+        </div>`
+       :
+       ''
+      }
+
+      ${
+       part.name
+       ?
+       `<div class="small">
+        📍 ${esc(part.name)}
+        </div>`
+       :
+       ''
+      }
+
+      <div class="partArea">
+       ${formatNumber(part.area)} ha
+      </div>
+
+
+      <div class="partButtons">
+
+       <button
+        class="miniButton zoom"
+        onclick="
+        zoomPart(
+         '${id}',
+         '${part.id}'
+        )">
+
+        🗺️ Ukázat
+
+       </button>
+
+
+       <button
+        class="miniButton delete"
+        onclick="
+        deletePart(
+         '${id}',
+         '${part.id}'
+        )">
+
+        🗑️ Smazat
+
+       </button>
+
+      </div>
+
+     </div>
+
+     `;
+
+   }
+  );
+
+
+  html+=`
+   </div>
+  `;
+
+ });
+
+
+ showPanel(
+  '✂️ Rozdělení pole',
+  html
+ );
+
+}
+
+
+/* ==================================================
+   ZAČÍT KRESLIT ČÁST
+================================================== */
+
+function startDrawPart(fieldId){
+
+ const field=
+ findField(fieldId);
+
+ if(!field)return;
+
+
+ drawingPartForField=
+ fieldId;
+
+
+ closePanel();
+
+
+ map.fitBounds(
+  field.getBounds(),
+  {
+   padding:[35,35]
+  }
+ );
+
+
+ document
+ .getElementById('mapHint')
+ .textContent=
+ '✂️ Nakresli polygon kolem osevní části';
+
+
+ setTimeout(
+  function(){
+
+   new L.Draw.Polygon(
+    map,
+    {
+     allowIntersection:false,
+     showArea:true,
+     shapeOptions:{
+      weight:3,
+      dashArray:'6,4',
+      fillOpacity:.25
+     }
+    }
+   ).enable();
+
+  },
+  300
+ );
+
+}
+
+
+/* ==================================================
+   DOKONČENÍ ČÁSTI
+================================================== */
+
+function finishCropPart(
+ fieldId,
+ layer
+){
+
+ const field=
+ findField(fieldId);
+
+ if(!field)
+  return;
+
+
+ const p=
+ field.feature.properties;
+
+
+ const yearText=
+ prompt(
+  'Pro který rok je tato část?',
+  new Date().getFullYear()
+ );
+
+
+ if(yearText===null)
+  return;
+
+
+ const year=
+ parseInt(yearText);
+
+
+ if(
+  isNaN(year) ||
+  year<2000 ||
+  year>2100
+ ){
+
+  alert(
+   'Neplatný rok.'
+  );
+
+  return;
+
+ }
+
+
+ const crop=
+ prompt(
+  'Co je na této části zaseto?',
+  'Pšenice'
+ );
+
+
+ if(!crop)
+  return;
+
+
+ const name=
+ prompt(
+  'Název části (volitelné):',
+  ''
+ )||'';
+
+
+ const variety=
+ prompt(
+  'Odrůda (volitelné):',
+  ''
+ )||'';
+
+
+ const area=
+ layerArea(layer);
+
+
+ if(!p.parts)
+  p.parts=[];
+
+
+ p.parts.push({
+
+  id:uid(),
+
+  year:year,
+
+  crop:crop,
+
+  name:name,
+
+  variety:variety,
+
+  area:area,
+
+  geometry:
+   layer.toGeoJSON().geometry
+
+ });
+
+
+ save();
+
+ refreshCropParts();
+
+
+ alert(
+  '✅ Část uložena\n\n'+
+  crop+
+  '\n'+
+  formatNumber(area)+
+  ' ha'
+ );
+
+
+ openParts(fieldId);
+
+}
+
+
+/* ==================================================
+   SMAZAT ČÁST
+================================================== */
+
+function deletePart(
+ fieldId,
+ partId
+){
+
+ const field=
+ findField(fieldId);
+
+ if(!field)return;
+
+
+ if(!confirm(
+  'Smazat tuto osevní část?'
+ ))
+  return;
+
+
+ const p=
+ field.feature.properties;
+
+
+ p.parts=
+ (p.parts||[])
+ .filter(
+  x=>
+  String(x.id)!==
+  String(partId)
+ );
+
+
+ save();
+
+ refreshCropParts();
+
+ openParts(fieldId);
+
+}
+
+
+/* ==================================================
+   ZOOM ČÁST
+================================================== */
+
+function zoomPart(
+ fieldId,
+ partId
+){
+
+ const field=
+ findField(fieldId);
+
+ if(!field)return;
+
+
+ const part=
+ (field.feature.properties.parts||[])
+ .find(
+  x=>
+  String(x.id)===
+  String(partId)
+ );
+
+
+ if(
+  !part ||
+  !part.geometry
+ )
+  return;
+
+
+ const layer=
+ L.geoJSON({
+  type:'Feature',
+  geometry:part.geometry
+ });
+
+
+ closePanel();
+
+
+ map.fitBounds(
+  layer.getBounds(),
+  {
+   padding:[60,60]
+  }
+ );
+
+}
+
+
+/* ==================================================
+   FORMULÁŘ ZÁSAHU
+================================================== */
+
+function recordForm(
+ id,
+ type
+){
+
+ const field=
+ findField(id);
+
+ if(!field)return;
+
+
+ const p=
+ field.feature.properties;
+
+
+ const year=
+ new Date().getFullYear();
+
+
+ const parts=
+ (p.parts||[])
+ .filter(
+  x=>Number(x.year)===year
+ );
+
+
+ let targets=`
+
+ <option value="">
+  Celé pole –
+  ${formatNumber(p.area)} ha
+ </option>
+
+ `;
+
+
+ parts.forEach(
+  function(part){
+
+   targets+=`
+
+   <option value="${part.id}">
+
+    ${esc(part.crop)}
+
+    ${
+     part.name
+     ?
+     ' – '+esc(part.name)
+     :
+     ''
+    }
+
+    (${formatNumber(part.area)} ha)
+
+   </option>
+
+   `;
+
+  }
+ );
+
+
+ let form='';
+
+
+ if(type==='Setí'){
+
+  form=`
 
   <label>Plodina</label>
 
   <input
-   id="partCrop"
-   placeholder="např. Pšenice ozimá">
+   id="product"
+   placeholder="Pšenice ozimá">
+
 
   <label>Odrůda</label>
 
   <input
-   id="partVariety"
-   placeholder="volitelné">
+   id="variety"
+   placeholder="Odrůda">
 
-  <label>Výměra části (ha)</label>
+
+  <label>Výsevek</label>
 
   <input
-   id="partArea"
+   id="dose"
    type="number"
    inputmode="decimal"
-   step="0.01"
-   placeholder="např. 5,25">
-
-  <button class="save" onclick="addPart('${id}')">
-   ➕ Přidat část
-  </button>
-
- </div>
- `;
+   step="0.01">
 
 
- years.forEach(year=>{
+  <label>Jednotka</label>
 
-  const parts=p.parts.filter(
-   x=>Number(x.year)===Number(year)
-  );
+  <select id="unit">
 
-  if(!parts.length)return;
+   <option>kg/ha</option>
+   <option>MJ/ha</option>
+   <option>ks/ha</option>
 
-  const used=parts.reduce(
-   (sum,x)=>sum+Number(x.area||0),
-   0
-  );
+  </select>
 
-  const remaining=Number(p.area)-used;
-
-  const percentage=Math.min(
-   100,
-   Math.max(0,(used/Number(p.area))*100)
-  );
-
-  html+=`
-
-  <div class="card">
-
-   <h3>📅 ${year}</h3>
-
-   <b>Rozděleno:</b>
-   ${formatNumber(used)} z ${formatNumber(p.area)} ha
-
-   <div class="progress">
-    <div class="progressBar" style="width:${percentage}%"></div>
-   </div>
-
-   <div class="small">
-    Zbývá nezařazeno:
-    ${formatNumber(Math.max(0,remaining))} ha
-   </div>
   `;
 
-  parts.forEach(part=>{
-
-   html+=`
-
-   <div class="part">
-
-    <b>
-     🌱 ${escapeHTML(part.crop)}
-    </b>
-
-    ${
-     part.variety
-     ? ` – ${escapeHTML(part.variety)}`
-     : ''
-    }
-
-    <br>
-
-    <b>${formatNumber(part.area)} ha</b>
-
-    ${
-     part.name
-     ? `<div class="small">
-        📍 ${escapeHTML(part.name)}
-        </div>`
-     : ''
-    }
-
-    <button
-     class="danger"
-     onclick="deletePart('${id}','${part.id}')">
-     🗑️ Smazat část
-    </button>
-
-   </div>
-   `;
-  });
-
-  html+=`</div>`;
- });
-
- showPanel('✂️ Rozdělit pole',html);
-}
-
-
-function addPart(id){
-
- const layer=findField(id);
- if(!layer)return;
-
- const p=layer.feature.properties;
-
- if(!p.parts)p.parts=[];
-
- const year=parseInt(
-  document.getElementById('partYear').value
- );
-
- const name=
-  document.getElementById('partName').value.trim();
-
- const crop=
-  document.getElementById('partCrop').value.trim();
-
- const variety=
-  document.getElementById('partVariety').value.trim();
-
- const area=parseFloat(
-  String(document.getElementById('partArea').value)
-  .replace(',','.')
- );
-
- if(!year || year<2000 || year>2100){
-  alert('Zadej správný rok.');
-  return;
  }
 
- if(!crop){
-  alert('Napiš plodinu.');
-  return;
- }
-
- if(isNaN(area) || area<=0){
-  alert('Zadej správnou výměru části.');
-  return;
- }
-
- const used=p.parts
- .filter(x=>Number(x.year)===year)
- .reduce((sum,x)=>sum+Number(x.area||0),0);
-
- if(used+area>Number(p.area)+0.01){
-
-  alert(
-   'To nejde uložit.\n\n'+
-   'Součet částí by byl '+formatNumber(used+area)+' ha,\n'+
-   'ale celé pole má jen '+formatNumber(p.area)+' ha.'
-  );
-
-  return;
- }
-
- p.parts.push({
-  id:Date.now().toString(),
-  year:year,
-  name:name,
-  crop:crop,
-  variety:variety,
-  area:area
- });
-
- save();
- openParts(id);
-}
-
-
-function deletePart(fieldId,partId){
-
- const layer=findField(fieldId);
- if(!layer)return;
-
- const p=layer.feature.properties;
-
- if(!confirm('Opravdu smazat tuto osevní část?')){
-  return;
- }
-
- p.parts=(p.parts||[]).filter(
-  x=>String(x.id)!==String(partId)
- );
-
- save();
- openParts(fieldId);
-}
-
-
-/* =========================
-   FORMULÁŘ ZÁSAHU
-========================= */
-
-function recordForm(id,type){
-
- const layer=findField(id);
- if(!layer)return;
-
- const p=layer.feature.properties;
-
- if(!p.parts)p.parts=[];
-
- const year=new Date().getFullYear();
-
- const parts=p.parts.filter(
-  x=>Number(x.year)===year
- );
-
- let targetOptions=`
-  <option value="">Celé pole – ${formatNumber(p.area)} ha</option>
- `;
-
- parts.forEach(part=>{
-
-  targetOptions+=`
-   <option value="${part.id}">
-    ${escapeHTML(part.crop)}
-    ${part.name?' – '+escapeHTML(part.name):''}
-    (${formatNumber(part.area)} ha)
-   </option>
-  `;
- });
-
-
- let specific='';
-
- if(type==='Setí'){
-
-  specific=`
-
-   <label>Plodina</label>
-   <input id="product" placeholder="Pšenice ozimá">
-
-   <label>Odrůda</label>
-   <input id="variety" placeholder="Odrůda">
-
-   <label>Výsevek</label>
-   <input id="dose" type="number" step="0.01" inputmode="decimal">
-
-   <label>Jednotka</label>
-   <select id="unit">
-    <option>kg/ha</option>
-    <option>MJ/ha</option>
-    <option>ks/ha</option>
-   </select>
-  `;
- }
 
  if(type==='Hnojení'){
 
-  specific=`
+  form=`
 
-   <label>Hnojivo</label>
-   <input id="product" placeholder="Hnůj, NPK, močovina, ledek…">
+  <label>Hnojivo</label>
 
-   <label>Dávka na hektar</label>
-   <input id="dose" type="number" step="0.01" inputmode="decimal">
+  <input
+   id="product"
+   placeholder="Hnůj, NPK, močovina, ledek…">
 
-   <label>Jednotka</label>
-   <select id="unit">
-    <option>kg/ha</option>
-    <option>t/ha</option>
-    <option>l/ha</option>
-   </select>
+
+  <label>Dávka na hektar</label>
+
+  <input
+   id="dose"
+   type="number"
+   inputmode="decimal"
+   step="0.01">
+
+
+  <label>Jednotka</label>
+
+  <select id="unit">
+
+   <option>kg/ha</option>
+   <option>t/ha</option>
+   <option>l/ha</option>
+
+  </select>
+
   `;
+
  }
+
 
  if(type==='Postřik'){
 
-  specific=`
+  form=`
 
-   <label>Přípravek</label>
-   <input id="product" placeholder="Název přípravku">
+  <label>Přípravek</label>
 
-   <label>Dávka na hektar</label>
-   <input id="dose" type="number" step="0.001" inputmode="decimal">
+  <input
+   id="product"
+   placeholder="Název přípravku">
 
-   <label>Jednotka</label>
-   <select id="unit">
-    <option>l/ha</option>
-    <option>kg/ha</option>
-    <option>g/ha</option>
-   </select>
+
+  <label>Dávka na hektar</label>
+
+  <input
+   id="dose"
+   type="number"
+   inputmode="decimal"
+   step="0.001">
+
+
+  <label>Jednotka</label>
+
+  <select id="unit">
+
+   <option>l/ha</option>
+   <option>kg/ha</option>
+   <option>g/ha</option>
+
+  </select>
+
   `;
+
  }
+
 
  if(type==='Sklizeň'){
 
-  specific=`
+  form=`
 
-   <label>Plodina</label>
-   <input id="product" placeholder="Pšenice">
+  <label>Plodina</label>
 
-   <label>Výnos</label>
-   <input id="dose" type="number" step="0.01" inputmode="decimal">
+  <input
+   id="product"
+   placeholder="Pšenice">
 
-   <label>Jednotka</label>
-   <select id="unit">
-    <option>t/ha</option>
-    <option>kg/ha</option>
-   </select>
+
+  <label>Výnos</label>
+
+  <input
+   id="dose"
+   type="number"
+   inputmode="decimal"
+   step="0.01">
+
+
+  <label>Jednotka</label>
+
+  <select id="unit">
+
+   <option>t/ha</option>
+   <option>kg/ha</option>
+
+  </select>
+
   `;
+
  }
 
 
  const html=`
 
- <button class="back" onclick="openField('${id}')">
+ <button
+  class="back"
+  onclick="openField('${id}')">
   ← Zpět
  </button>
 
+
  <div class="card">
 
-  <label>Kam záznam patří?</label>
+  <label>
+   Kam záznam patří?
+  </label>
 
   <select id="targetPart">
-   ${targetOptions}
+   ${targets}
   </select>
 
-  ${
-   parts.length
-   ? `<div class="small">
-      Můžeš zapsat zásah na celé pole nebo jen na jednu osevní část.
-      </div>`
-   : ''
-  }
 
   <label>Datum</label>
 
@@ -1000,7 +1940,9 @@ function recordForm(id,type){
    type="date"
    value="${today()}">
 
-  ${specific}
+
+  ${form}
+
 
   <label>Poznámka</label>
 
@@ -1009,355 +1951,951 @@ function recordForm(id,type){
    placeholder="Volitelná poznámka">
   </textarea>
 
-  <button class="save" onclick="saveRecord('${id}','${type}')">
+
+  <button
+   class="fullButton green"
+   onclick="
+   saveRecord(
+    '${id}',
+    '${type}'
+   )">
+
    💾 Uložit
+
   </button>
 
  </div>
+
  `;
 
- showPanel(icon(type)+' '+type,html);
+
+ showPanel(
+  icon(type)+' '+type,
+  html
+ );
+
 }
 
 
-/* =========================
-   ULOŽENÍ ZÁSAHU
-========================= */
+/* ==================================================
+   ULOŽIT ZÁSAH
+================================================== */
 
-function saveRecord(id,type){
+function saveRecord(
+ id,
+ type
+){
 
- const layer=findField(id);
- if(!layer)return;
+ const field=
+ findField(id);
 
- const p=layer.feature.properties;
+ if(!field)return;
+
+
+ const p=
+ field.feature.properties;
+
 
  const product=
-  document.getElementById('product')?.value.trim()||'';
+ document
+ .getElementById('product')
+ ?.value.trim()||'';
+
 
  if(!product){
-  alert('Vyplň název.');
-  return;
- }
 
- const rawDose=
-  document.getElementById('dose')?.value||'';
-
- const dose=parseFloat(
-  String(rawDose).replace(',','.')
- );
-
- const targetPartId=
-  document.getElementById('targetPart')?.value||'';
-
- let targetArea=Number(p.area);
- let targetName='Celé pole';
-
- if(targetPartId){
-
-  const part=(p.parts||[]).find(
-   x=>String(x.id)===String(targetPartId)
+  alert(
+   'Vyplň název.'
   );
 
-  if(part){
-   targetArea=Number(part.area);
-   targetName=
-    part.crop+
-    (part.name?' – '+part.name:'');
-  }
+  return;
+
  }
+
+
+ const raw=
+ document
+ .getElementById('dose')
+ ?.value||'';
+
+
+ const dose=
+ parseFloat(
+  String(raw)
+  .replace(',','.')
+ );
+
+
+ const partId=
+ document
+ .getElementById('targetPart')
+ ?.value||'';
+
+
+ let targetArea=
+ Number(p.area);
+
+ let targetName=
+ 'Celé pole';
+
+
+ if(partId){
+
+  const part=
+  (p.parts||[])
+  .find(
+   x=>
+   String(x.id)===
+   String(partId)
+  );
+
+
+  if(part){
+
+   targetArea=
+   Number(part.area);
+
+   targetName=
+   part.crop+
+   (
+    part.name
+    ?
+    ' – '+part.name
+    :
+    ''
+   );
+
+  }
+
+ }
+
 
  const record={
 
-  id:Date.now().toString(),
+  id:uid(),
+
   type:type,
-  date:document.getElementById('date').value,
+
+  date:
+   document
+   .getElementById('date')
+   .value,
+
   product:product,
 
   variety:
-   document.getElementById('variety')?.value.trim()||'',
+   document
+   .getElementById('variety')
+   ?.value.trim()||'',
 
-  dose:isNaN(dose)?null:dose,
+  dose:
+   isNaN(dose)
+   ?
+   null
+   :
+   dose,
 
   unit:
-   document.getElementById('unit')?.value||'',
+   document
+   .getElementById('unit')
+   ?.value||'',
 
   note:
-   document.getElementById('note').value.trim(),
+   document
+   .getElementById('note')
+   .value.trim(),
 
-  partId:targetPartId,
-  targetName:targetName,
-  targetArea:targetArea
+  partId:partId,
+
+  targetArea:targetArea,
+
+  targetName:targetName
+
  };
 
- if(!p.history)p.history=[];
+
+ if(!p.history)
+  p.history=[];
+
 
  p.history.push(record);
 
+
  save();
+
  openField(id);
+
 }
 
 
-/* =========================
+/* ==================================================
    HISTORIE
-========================= */
+================================================== */
 
-function historyHTML(r,fieldArea,p){
+function historyHTML(p){
 
- if(r.text && !r.product){
+ const history=
+ [...(p.history||[])]
+ .sort(
+  (a,b)=>
+  String(b.date||'')
+  .localeCompare(
+   String(a.date||'')
+  )
+ );
+
+
+ if(!history.length){
 
   return`
+   <p class="muted">
+    Zatím tu není žádný záznam.
+   </p>
+  `;
+
+ }
+
+
+ let html='';
+
+
+ history.forEach(
+  function(r){
+
+   /* staré záznamy */
+
+   if(
+    r.text &&
+    !r.product
+   ){
+
+    html+=`
+
+    <div class="history">
+
+     <b>
+      ${icon(r.type)}
+      ${esc(r.type)}
+     </b>
+
+     <br>
+
+     ${esc(r.text)}
+
+     <div class="small">
+      📅 ${formatDate(r.date)}
+     </div>
+
+    </div>
+
+    `;
+
+    return;
+
+   }
+
+
+   const area=
+   r.targetArea!==undefined
+   ?
+   Number(r.targetArea)
+   :
+   Number(p.area);
+
+
+   let total='';
+
+
+   if(
+    r.dose!==null &&
+    r.dose!==undefined
+   ){
+
+    const amount=
+    Number(r.dose)*area;
+
+    const unit=
+    String(r.unit||'')
+    .replace('/ha','');
+
+
+    total=`
+
+    <div class="total">
+
+     Celkem:
+     ${formatNumber(amount)}
+     ${esc(unit)}
+
+    </div>
+
+    `;
+
+   }
+
+
+   html+=`
+
    <div class="history">
-    <b>${icon(r.type)} ${escapeHTML(r.type)}</b><br>
-    ${escapeHTML(r.text)}
-    <div class="small">${formatDate(r.date)}</div>
+
+    <b>
+     ${icon(r.type)}
+     ${esc(r.type)}
+    </b>
+
+    <br>
+
+    ${esc(r.product||'')}
+
+    ${
+     r.variety
+     ?
+     ' – '+esc(r.variety)
+     :
+     ''
+    }
+
+
+    ${
+     r.targetName
+     ?
+     `<div class="small">
+      📍 ${esc(r.targetName)}
+      • ${formatNumber(area)} ha
+      </div>`
+     :
+     ''
+    }
+
+
+    ${
+     r.dose!==null &&
+     r.dose!==undefined
+     ?
+     `<div>
+      ${formatNumber(r.dose)}
+      ${esc(r.unit)}
+      </div>`
+     :
+     ''
+    }
+
+
+    ${total}
+
+
+    <div class="small">
+     📅 ${formatDate(r.date)}
+    </div>
+
+
+    ${
+     r.note
+     ?
+     `<div class="small">
+      📝 ${esc(r.note)}
+      </div>`
+     :
+     ''
+    }
+
    </div>
-  `;
- }
 
- const area=
-  r.targetArea!==undefined
-  ? Number(r.targetArea)
-  : Number(fieldArea);
+   `;
 
- let total='';
-
- if(r.dose!==null && r.dose!==undefined){
-
-  const amount=Number(r.dose)*area;
-
-  const unit=String(r.unit||'').replace('/ha','');
-
-  total=`
-   <div class="total">
-    Celkem: ${formatNumber(amount)} ${escapeHTML(unit)}
-   </div>
-  `;
- }
-
- return`
-
- <div class="history">
-
-  <b>
-   ${icon(r.type)} ${escapeHTML(r.type)}
-  </b>
-
-  <br>
-
-  ${escapeHTML(r.product||'')}
-
-  ${
-   r.variety
-   ? ' – '+escapeHTML(r.variety)
-   : ''
   }
+ );
 
-  ${
-   r.targetName
-   ? `<div class="small">
-      📍 ${escapeHTML(r.targetName)}
-      – ${formatNumber(area)} ha
-      </div>`
-   : ''
-  }
 
-  ${
-   r.dose!==null && r.dose!==undefined
-   ? `<div>
-      ${formatNumber(r.dose)} ${escapeHTML(r.unit)}
-      </div>`
-   : ''
-  }
+ return html;
 
-  ${total}
-
-  <div class="small">
-   📅 ${formatDate(r.date)}
-  </div>
-
-  ${
-   r.note
-   ? `<div class="small">
-      📝 ${escapeHTML(r.note)}
-      </div>`
-   : ''
-  }
-
- </div>
- `;
 }
 
 
-/* =========================
+/* ==================================================
+   SEZNAM POLÍ
+================================================== */
+
+function openFields(){
+
+ let arr=[];
+
+
+ fields.eachLayer(
+  function(layer){
+
+   arr.push(
+    layer.feature.properties
+   );
+
+  }
+ );
+
+
+ arr.sort(
+  (a,b)=>
+  a.name.localeCompare(
+   b.name,
+   'cs'
+  )
+ );
+
+
+ let html=`
+
+ <div class="notice">
+
+  💾 Tvoje data jsou zatím
+  uložená v tomto zařízení.
+  Doporučuji pravidelnou zálohu.
+
+ </div>
+
+
+ <div class="actions">
+
+  <button
+   class="action green"
+   onclick="exportData()">
+
+   <span>💾</span>
+   Záloha
+
+  </button>
+
+
+  <button
+   class="action"
+   onclick="
+   document
+   .getElementById('importFile')
+   .click()">
+
+   <span>📂</span>
+   Obnovit
+
+  </button>
+
+ </div>
+
+
+ <h3>
+  🌾 Moje pole (${arr.length})
+ </h3>
+
+ `;
+
+
+ if(!arr.length){
+
+  html+=`
+   <p>
+    Zatím nemáš uložené
+    žádné pole.
+   </p>
+  `;
+
+ }
+
+
+ arr.forEach(
+  function(p){
+
+   html+=`
+
+   <button
+    class="fieldButton"
+    onclick="openField('${p.id}')">
+
+    <b>
+     🌾 ${esc(p.name)}
+    </b>
+
+    <br>
+
+    ${formatNumber(p.area)} ha
+
+    ${
+     p.parts &&
+     p.parts.length
+     ?
+     `<div class="small">
+      ✂️ ${p.parts.length}
+      uložených osevních částí
+      </div>`
+     :
+     ''
+    }
+
+   </button>
+
+   `;
+
+  }
+ );
+
+
+ showPanel(
+  'Moje pole',
+  html
+ );
+
+}
+
+
+/* ==================================================
+   ZOOM POLE
+================================================== */
+
+function zoomField(id){
+
+ const field=
+ findField(id);
+
+ if(!field)return;
+
+
+ closePanel();
+
+
+ map.fitBounds(
+  field.getBounds(),
+  {
+   padding:[50,50]
+  }
+ );
+
+}
+
+
+/* ==================================================
+   GPS
+================================================== */
+
+function locateMe(){
+
+ map.locate({
+  setView:true,
+  maxZoom:17,
+  enableHighAccuracy:true
+ });
+
+}
+
+
+map.on(
+ 'locationfound',
+ function(e){
+
+  L.circleMarker(
+   e.latlng,
+   {
+    radius:8,
+    weight:3,
+    fillOpacity:.8
+   }
+  )
+  .addTo(map)
+  .bindPopup(
+   '📍 Tvoje poloha'
+  )
+  .openPopup();
+
+ }
+);
+
+
+map.on(
+ 'locationerror',
+ function(){
+
+  alert(
+   'Poloha se nepodařila načíst.'
+  );
+
+ }
+);
+
+
+/* ==================================================
    PŘEJMENOVAT
-========================= */
+================================================== */
 
 function renameField(id){
 
- const layer=findField(id);
- if(!layer)return;
+ const field=
+ findField(id);
 
- const p=layer.feature.properties;
+ if(!field)return;
 
- const name=prompt(
+
+ const p=
+ field.feature.properties;
+
+
+ const name=
+ prompt(
   'Nový název pole:',
   p.name
  );
 
+
  if(!name)return;
+
 
  p.name=name;
 
  save();
+
  openField(id);
+
 }
 
 
-/* =========================
+/* ==================================================
+   NAJÍT POLE
+================================================== */
+
+function findField(id){
+
+ let result=null;
+
+
+ fields.eachLayer(
+  function(layer){
+
+   if(
+    layer.feature &&
+    String(
+     layer.feature.properties.id
+    )===
+    String(id)
+   ){
+
+    result=layer;
+
+   }
+
+  }
+ );
+
+
+ return result;
+
+}
+
+
+/* ==================================================
+   PANEL
+================================================== */
+
+function showPanel(
+ title,
+ html
+){
+
+ document
+ .getElementById('panelTitle')
+ .textContent=title;
+
+
+ document
+ .getElementById('panelContent')
+ .innerHTML=html;
+
+
+ document
+ .getElementById('panel')
+ .classList.add('open');
+
+}
+
+
+function closePanel(){
+
+ document
+ .getElementById('panel')
+ .classList.remove('open');
+
+}
+
+
+/* ==================================================
    ZÁLOHA
-========================= */
+================================================== */
 
 function exportData(){
 
- const data=localStorage.getItem('mojePoleData');
-
- if(!data){
-  alert('Není co zálohovat.');
-  return;
- }
-
- const blob=new Blob(
-  [data],
-  {type:'application/json'}
+ const data=
+ localStorage.getItem(
+  'mojePoleData'
  );
 
- const url=URL.createObjectURL(blob);
 
- const a=document.createElement('a');
+ if(!data){
+
+  alert(
+   'Není co zálohovat.'
+  );
+
+  return;
+
+ }
+
+
+ const blob=
+ new Blob(
+  [data],
+  {
+   type:'application/json'
+  }
+ );
+
+
+ const url=
+ URL.createObjectURL(blob);
+
+
+ const a=
+ document.createElement('a');
+
 
  a.href=url;
- a.download='moje-pole-zaloha-'+today()+'.json';
+
+ a.download=
+ 'moje-pole-zaloha-'+
+ today()+
+ '.json';
+
 
  document.body.appendChild(a);
+
  a.click();
+
  a.remove();
 
+
  URL.revokeObjectURL(url);
+
 }
 
 
-/* =========================
-   IMPORT ZÁLOHY
-========================= */
+/* ==================================================
+   IMPORT
+================================================== */
 
 document
 .getElementById('importFile')
-.addEventListener('change',function(e){
+.addEventListener(
+ 'change',
+ function(e){
 
- const file=e.target.files[0];
+  const file=
+  e.target.files[0];
 
- if(!file)return;
 
- const reader=new FileReader();
+  if(!file)
+   return;
 
- reader.onload=function(){
 
-  try{
+  const reader=
+  new FileReader();
 
-   const data=JSON.parse(reader.result);
 
-   if(!data || data.type!=='FeatureCollection'){
-    throw new Error();
+  reader.onload=
+  function(){
+
+   try{
+
+    const data=
+    JSON.parse(
+     reader.result
+    );
+
+
+    if(
+     !data ||
+     data.type!==
+     'FeatureCollection'
+    ){
+
+     throw new Error();
+
+    }
+
+
+    if(
+     !confirm(
+      'Obnovit zálohu?\n\n'+
+      'Současná data budou nahrazena.'
+     )
+    ){
+
+     return;
+
+    }
+
+
+    localStorage.setItem(
+     'mojePoleData',
+     JSON.stringify(data)
+    );
+
+
+    alert(
+     '✅ Záloha obnovena.'
+    );
+
+
+    location.reload();
+
    }
 
-   if(!confirm(
-    'Obnovit tuto zálohu?\n\nSoučasná data budou nahrazena.'
-   )){
-    return;
+   catch(err){
+
+    alert(
+     'Soubor není platná záloha.'
+    );
+
    }
 
-   localStorage.setItem(
-    'mojePoleData',
-    JSON.stringify(data)
-   );
-
-   alert('Záloha byla obnovena.');
-   location.reload();
-
-  }catch(err){
-
-   alert(
-    'Tento soubor není platná záloha aplikace Moje pole.'
-   );
-  }
- };
-
- reader.readAsText(file);
-});
+  };
 
 
-/* =========================
-   POMOCNÉ FUNKCE
-========================= */
+  reader.readAsText(file);
+
+ }
+
+);
+
+
+/* ==================================================
+   POMOCNÉ
+================================================== */
+
+function uid(){
+
+ return(
+  Date.now().toString()+
+  Math.random()
+  .toString(36)
+  .slice(2,8)
+ );
+
+}
+
 
 function today(){
- return new Date().toISOString().slice(0,10);
+
+ return new Date()
+ .toISOString()
+ .slice(0,10);
+
 }
+
 
 function icon(type){
 
- if(type==='Setí')return '🌱';
- if(type==='Hnojení')return '🚜';
- if(type==='Postřik')return '💧';
- if(type==='Sklizeň')return '🌾';
+ if(type==='Setí')
+  return'🌱';
 
- return '📝';
+ if(type==='Hnojení')
+  return'🚜';
+
+ if(type==='Postřik')
+  return'💧';
+
+ if(type==='Sklizeň')
+  return'🌾';
+
+ return'📝';
+
 }
+
 
 function formatNumber(n){
 
- return Number(n||0).toLocaleString(
+ return Number(n||0)
+ .toLocaleString(
   'cs-CZ',
-  {maximumFractionDigits:2}
+  {
+   maximumFractionDigits:2
+  }
  );
+
 }
+
 
 function formatDate(d){
 
- if(!d)return '';
+ if(!d)
+  return'';
 
- const x=d.split('-');
 
- if(x.length!==3)return d;
+ const x=
+ d.split('-');
 
- return x[2]+'. '+x[1]+'. '+x[0];
+
+ if(x.length!==3)
+  return d;
+
+
+ return(
+  x[2]+'. '+
+  x[1]+'. '+
+  x[0]
+ );
+
 }
 
-function escapeHTML(value){
+
+function esc(value){
 
  return String(value??'')
- .replaceAll('&','&amp;')
- .replaceAll('<','&lt;')
- .replaceAll('>','&gt;')
- .replaceAll('"','&quot;');
+
+ .replaceAll(
+  '&',
+  '&amp;'
+ )
+
+ .replaceAll(
+  '<',
+  '&lt;'
+ )
+
+ .replaceAll(
+  '>',
+  '&gt;'
+ )
+
+ .replaceAll(
+  '"',
+  '&quot;'
+ );
+
 }
 
 
-/* =========================
-   ZOOM NA ULOŽENÁ POLE
-========================= */
+/* ==================================================
+   START
+================================================== */
 
-if(fields.getLayers().length){
+if(
+ fields.getLayers().length
+){
 
  try{
 
   map.fitBounds(
    fields.getBounds(),
-   {padding:[30,30]}
+   {
+    padding:[40,40]
+   }
   );
 
- }catch(e){}
+ }
+ catch(e){}
+
 }
 
 </script>
