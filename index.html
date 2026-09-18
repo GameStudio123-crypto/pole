@@ -2,175 +2,514 @@
 <html lang="cs">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
 <title>Moje pole</title>
 
 <link rel="stylesheet"
- href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <link rel="stylesheet"
- href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css">
+href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css">
 
 <style>
-html,body,#map{
-  height:100%;
-  margin:0;
-}
 
-body{
-  font-family:Arial,sans-serif;
+html,body{
+ margin:0;
+ height:100%;
+ font-family:Arial,sans-serif;
 }
 
 #map{
-  width:100%;
+ height:100%;
 }
 
 .header{
-  position:absolute;
-  top:10px;
-  left:50px;
-  z-index:1000;
-  background:white;
-  padding:10px 15px;
-  border-radius:10px;
-  box-shadow:0 2px 8px #777;
-  font-weight:bold;
+ position:absolute;
+ top:10px;
+ left:55px;
+ z-index:1000;
+ background:white;
+ padding:10px 15px;
+ border-radius:12px;
+ box-shadow:0 2px 10px #555;
+ font-weight:bold;
+ font-size:18px;
 }
 
-.info{
-  position:absolute;
-  bottom:25px;
-  left:10px;
-  right:10px;
-  z-index:1000;
-  background:white;
-  padding:10px;
-  border-radius:10px;
-  box-shadow:0 2px 8px #777;
-  text-align:center;
+.help{
+ position:absolute;
+ bottom:20px;
+ left:10px;
+ right:10px;
+ z-index:900;
+ background:white;
+ padding:10px;
+ border-radius:10px;
+ text-align:center;
+ box-shadow:0 2px 8px #555;
 }
+
+.popup-button{
+ display:block;
+ width:100%;
+ margin-top:7px;
+ padding:8px;
+ border:0;
+ border-radius:7px;
+ background:#2f7d32;
+ color:white;
+ font-weight:bold;
+}
+
 </style>
 </head>
 
 <body>
 
-<div class="header">🚜 Moje pole</div>
+<div class="header">
+🚜 Moje pole
+</div>
 
 <div id="map"></div>
 
-<div class="info">
-Klepni vlevo na nástroj pro kreslení a označ hranici pole.
+<div class="help">
+✏️ Nakresli pole → pojmenuj ho → aplikace spočítá hektary
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+<script
+src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
+
+<script
+src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js">
+</script>
+
 
 <script>
 
-const map = L.map('map').setView([49.55,16.95],13);
+/* ================================
+MAPA
+================================ */
 
-
-/* MAPA */
-
-const normal = L.tileLayer(
-'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-{
- maxZoom:19,
- attribution:'© OpenStreetMap'
-}
+const map =
+L.map('map').setView(
+ [49.55,16.95],
+ 13
 );
 
 
 /* LETECKÁ MAPA */
 
-const satellite = L.tileLayer(
+const satellite =
+L.tileLayer(
+
 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+
 {
- maxZoom:19,
+ maxZoom:20,
  attribution:'Esri'
 }
+
+);
+
+
+/* KLASICKÁ MAPA */
+
+const normal =
+L.tileLayer(
+
+'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+
+{
+ maxZoom:20,
+ attribution:'© OpenStreetMap'
+}
+
 );
 
 satellite.addTo(map);
-/* HRANICE KATASTRÁLNÍCH PARCEL ČÚZK */
 
-const katastr = L.tileLayer.wms(
-  'https://services.cuzk.cz/wms/local-km-wms.asp',
-  {
-    layers: 'hranice_parcel',
-    format: 'image/png',
-    transparent: true,
-    version: '1.3.0',
-    maxZoom: 22,
-    attribution: 'ČÚZK'
-  }
+
+/* ================================
+KATASTR ČÚZK
+================================ */
+
+const katastr =
+L.tileLayer.wms(
+
+'https://services.cuzk.gov.cz/wms/local-km-wms.asp',
+
+{
+ layers:'hranice_parcel',
+ format:'image/png',
+ transparent:true,
+ version:'1.3.0',
+ maxZoom:22,
+ attribution:'ČÚZK'
+}
+
 );
 
 katastr.addTo(map);
 
-/* PŘEPÍNÁNÍ MAP */
+
+/* PŘEPÍNAČ */
 
 L.control.layers(
+
 {
- 'Letecká mapa': satellite,
- 'Klasická mapa': normal
+ '🛰️ Letecká mapa':satellite,
+ '🗺️ Klasická mapa':normal
 },
+
 {
- 'Hranice parcel ČÚZK': katastr
+ '📐 Hranice parcel':katastr
 }
+
 ).addTo(map);
 
-/* ULOŽENÁ POLE */
-
-const drawnItems = new L.FeatureGroup();
-map.addLayer(drawnItems);
 
 
-/* NAČTENÍ ULOŽENÝCH POLÍ */
+/* ================================
+MOJE POLE
+================================ */
 
-const saved = localStorage.getItem('mojePole');
+const fields =
+new L.FeatureGroup();
+
+map.addLayer(fields);
+
+
+/* ================================
+VÝPOČET PLOCHY
+================================ */
+
+function calculateArea(layer){
+
+ let latlngs =
+ layer.getLatLngs()[0];
+
+ let area =
+ L.GeometryUtil ?
+ L.GeometryUtil.geodesicArea(latlngs)
+ :
+ manualArea(latlngs);
+
+ return area / 10000;
+
+}
+
+
+/* jednoduchý výpočet plochy */
+
+function manualArea(points){
+
+ let area = 0;
+
+ if(points.length < 3)
+ return 0;
+
+ const R = 6378137;
+
+ for(
+ let i=0;
+ i<points.length;
+ i++
+ ){
+
+ let p1 = points[i];
+ let p2 =
+ points[(i+1)%points.length];
+
+ area +=
+ (p2.lng-p1.lng) *
+ Math.PI/180 *
+ (
+ 2+
+ Math.sin(p1.lat*Math.PI/180)+
+ Math.sin(p2.lat*Math.PI/180)
+ );
+
+ }
+
+ area =
+ area * R * R / 2;
+
+ return Math.abs(area);
+
+}
+
+
+/* ================================
+POPUP POLE
+================================ */
+
+function popup(layer){
+
+ let p =
+ layer.feature.properties;
+
+ let history =
+ p.history || [];
+
+ let last =
+ history.length
+ ?
+ history[history.length-1]
+ :
+ null;
+
+ let html =
+
+ '<h3>🌾 '+p.name+'</h3>'+
+
+ '<b>Výměra:</b> '+
+ p.area.toFixed(2)+
+ ' ha<br>';
+
+ if(last){
+
+ html +=
+ '<br><b>Poslední záznam:</b><br>'+
+ last.type+
+ ' – '+
+ last.text+
+ '<br>'+
+ last.date;
+
+ }
+
+ html +=
+
+ '<button class="popup-button" '+
+ 'onclick="addRecord(\''+
+ p.id+
+ '\')">'+
+
+ '➕ Přidat záznam'+
+ '</button>';
+
+ layer.bindPopup(html);
+
+}
+
+
+/* ================================
+NOVÉ POLE
+================================ */
+
+map.on(
+ L.Draw.Event.CREATED,
+ function(e){
+
+ let layer=e.layer;
+
+ let name =
+ prompt(
+ 'Název pole:',
+ 'Pole'
+ );
+
+ if(!name)
+ name='Pole';
+
+ let area =
+ calculateArea(layer);
+
+ let id =
+ Date.now().toString();
+
+ layer.feature={
+  type:'Feature',
+
+  properties:{
+   id:id,
+   name:name,
+   area:area,
+   history:[]
+  }
+ };
+
+ fields.addLayer(layer);
+
+ popup(layer);
+
+ save();
+
+ layer.openPopup();
+
+ }
+);
+
+
+/* ================================
+PŘIDAT ZÁZNAM
+================================ */
+
+window.addRecord =
+function(id){
+
+ let selected=null;
+
+ fields.eachLayer(
+ function(layer){
+
+ if(
+ layer.feature &&
+ layer.feature.properties.id==id
+ ){
+ selected=layer;
+ }
+
+ });
+
+ if(!selected)
+ return;
+
+
+ let type =
+ prompt(
+ 'Co chceš zapsat?\n\n'+
+ 'Setí\n'+
+ 'Hnojení\n'+
+ 'Postřik\n'+
+ 'Sklizeň'
+ );
+
+ if(!type)
+ return;
+
+
+ let text =
+ prompt(
+ 'Co bylo použito / zaseto?'
+ );
+
+ if(!text)
+ return;
+
+
+ let date =
+ prompt(
+ 'Datum:',
+ new Date().
+ toISOString().
+ slice(0,10)
+ );
+
+
+ selected.feature.properties.history.push({
+
+ type:type,
+ text:text,
+ date:date
+
+ });
+
+
+ popup(selected);
+
+ save();
+
+ selected.openPopup();
+
+ alert('Záznam uložen 👍');
+
+};
+
+
+
+/* ================================
+ULOŽENÍ
+================================ */
+
+function save(){
+
+ let data =
+ fields.toGeoJSON();
+
+ localStorage.setItem(
+ 'mojePoleData',
+ JSON.stringify(data)
+ );
+
+}
+
+
+/* ================================
+NAČTENÍ
+================================ */
+
+let saved =
+localStorage.getItem(
+ 'mojePoleData'
+);
 
 if(saved){
 
- const data = JSON.parse(saved);
+ try{
 
- L.geoJSON(data,{
-  onEachFeature:function(feature,layer){
+ let data =
+ JSON.parse(saved);
 
-   drawnItems.addLayer(layer);
+ L.geoJSON(
 
-   if(feature.properties &&
-      feature.properties.name){
+ data,
 
-    layer.bindPopup(
-     '<b>🌾 '+feature.properties.name+'</b>'
-    );
+ {
 
-   }
+ onEachFeature:
+ function(feature,layer){
 
-  }
- });
+ if(!feature.properties.history)
+ feature.properties.history=[];
+
+ fields.addLayer(layer);
+
+ popup(layer);
+
+ }
+
+ }
+
+ );
+
+ }
+ catch(e){
+
+ console.log(e);
+
+ }
 
 }
 
 
-/* KRESLENÍ */
+/* ================================
+KRESLENÍ
+================================ */
 
-const drawControl = new L.Control.Draw({
+const drawControl =
+new L.Control.Draw({
 
  edit:{
-  featureGroup:drawnItems
+  featureGroup:fields
  },
 
  draw:{
-  polygon:true,
+
+  polygon:{
+   allowIntersection:false,
+   showArea:true
+  },
+
   rectangle:false,
   circle:false,
   circlemarker:false,
   marker:false,
   polyline:false
+
  }
 
 });
@@ -178,63 +517,36 @@ const drawControl = new L.Control.Draw({
 map.addControl(drawControl);
 
 
-/* NOVÉ POLE */
+/* změna hranice */
 
-map.on(L.Draw.Event.CREATED,function(event){
+map.on(
+ L.Draw.Event.EDITED,
+ function(e){
 
- const layer = event.layer;
+ e.layers.eachLayer(
+ function(layer){
 
- const name = prompt(
-  'Jak se toto pole jmenuje?',
-  'Moje pole'
- );
+ layer.feature.properties.area =
+ calculateArea(layer);
 
- layer.feature = layer.feature || {
-  type:'Feature',
-  properties:{}
- };
+ popup(layer);
 
- layer.feature.properties.name =
-  name || 'Moje pole';
+ });
 
- drawnItems.addLayer(layer);
+ save();
 
- layer.bindPopup(
-  '<b>🌾 '+layer.feature.properties.name+'</b>'
- ).openPopup();
-
- saveFields();
-
-});
+ }
+);
 
 
-/* ÚPRAVA */
+/* smazání */
 
-map.on(L.Draw.Event.EDITED,function(){
- saveFields();
-});
-
-
-/* SMAZÁNÍ */
-
-map.on(L.Draw.Event.DELETED,function(){
- saveFields();
-});
-
-
-/* ULOŽENÍ */
-
-function saveFields(){
-
- const data =
-  drawnItems.toGeoJSON();
-
- localStorage.setItem(
-  'mojePole',
-  JSON.stringify(data)
- );
-
-}
+map.on(
+ L.Draw.Event.DELETED,
+ function(){
+ save();
+ }
+);
 
 </script>
 
