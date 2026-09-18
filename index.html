@@ -1,64 +1,223 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Moje pole</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<title>Moje pole</title>
 
-  <style>
-    html, body {
-      margin: 0;
-      height: 100%;
-      font-family: Arial, sans-serif;
-    }
+<link rel="stylesheet"
+ href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
-    #map {
-      height: 100%;
-      width: 100%;
-    }
+<link rel="stylesheet"
+ href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css">
 
-    .title {
-      position: absolute;
-      top: 12px;
-      left: 50px;
-      z-index: 1000;
-      background: white;
-      padding: 10px 16px;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px #777;
-      font-weight: bold;
-      font-size: 18px;
-    }
-  </style>
+<style>
+html,body,#map{
+  height:100%;
+  margin:0;
+}
+
+body{
+  font-family:Arial,sans-serif;
+}
+
+#map{
+  width:100%;
+}
+
+.header{
+  position:absolute;
+  top:10px;
+  left:50px;
+  z-index:1000;
+  background:white;
+  padding:10px 15px;
+  border-radius:10px;
+  box-shadow:0 2px 8px #777;
+  font-weight:bold;
+}
+
+.info{
+  position:absolute;
+  bottom:25px;
+  left:10px;
+  right:10px;
+  z-index:1000;
+  background:white;
+  padding:10px;
+  border-radius:10px;
+  box-shadow:0 2px 8px #777;
+  text-align:center;
+}
+</style>
 </head>
 
 <body>
 
-<div class="title">🚜 Moje pole</div>
+<div class="header">🚜 Moje pole</div>
+
 <div id="map"></div>
+
+<div class="info">
+Klepni vlevo na nástroj pro kreslení a označ hranici pole.
+</div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
+<script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+
 <script>
-  const map = L.map('map').setView([49.55, 16.95], 12);
 
-  L.tileLayer(
-    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap'
-    }
-  ).addTo(map);
+const map = L.map('map').setView([49.55,16.95],13);
 
-  L.marker([49.55, 16.95])
-    .addTo(map)
-    .bindPopup(
-      '<b>Moje pole</b><br>První verze aplikace funguje! 🚜'
-    )
-    .openPopup();
+
+/* MAPA */
+
+const normal = L.tileLayer(
+'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+{
+ maxZoom:19,
+ attribution:'© OpenStreetMap'
+}
+);
+
+
+/* LETECKÁ MAPA */
+
+const satellite = L.tileLayer(
+'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+{
+ maxZoom:19,
+ attribution:'Esri'
+}
+);
+
+satellite.addTo(map);
+
+
+/* PŘEPÍNÁNÍ MAP */
+
+L.control.layers({
+ 'Letecká mapa':satellite,
+ 'Klasická mapa':normal
+}).addTo(map);
+
+
+/* ULOŽENÁ POLE */
+
+const drawnItems = new L.FeatureGroup();
+map.addLayer(drawnItems);
+
+
+/* NAČTENÍ ULOŽENÝCH POLÍ */
+
+const saved = localStorage.getItem('mojePole');
+
+if(saved){
+
+ const data = JSON.parse(saved);
+
+ L.geoJSON(data,{
+  onEachFeature:function(feature,layer){
+
+   drawnItems.addLayer(layer);
+
+   if(feature.properties &&
+      feature.properties.name){
+
+    layer.bindPopup(
+     '<b>🌾 '+feature.properties.name+'</b>'
+    );
+
+   }
+
+  }
+ });
+
+}
+
+
+/* KRESLENÍ */
+
+const drawControl = new L.Control.Draw({
+
+ edit:{
+  featureGroup:drawnItems
+ },
+
+ draw:{
+  polygon:true,
+  rectangle:false,
+  circle:false,
+  circlemarker:false,
+  marker:false,
+  polyline:false
+ }
+
+});
+
+map.addControl(drawControl);
+
+
+/* NOVÉ POLE */
+
+map.on(L.Draw.Event.CREATED,function(event){
+
+ const layer = event.layer;
+
+ const name = prompt(
+  'Jak se toto pole jmenuje?',
+  'Moje pole'
+ );
+
+ layer.feature = layer.feature || {
+  type:'Feature',
+  properties:{}
+ };
+
+ layer.feature.properties.name =
+  name || 'Moje pole';
+
+ drawnItems.addLayer(layer);
+
+ layer.bindPopup(
+  '<b>🌾 '+layer.feature.properties.name+'</b>'
+ ).openPopup();
+
+ saveFields();
+
+});
+
+
+/* ÚPRAVA */
+
+map.on(L.Draw.Event.EDITED,function(){
+ saveFields();
+});
+
+
+/* SMAZÁNÍ */
+
+map.on(L.Draw.Event.DELETED,function(){
+ saveFields();
+});
+
+
+/* ULOŽENÍ */
+
+function saveFields(){
+
+ const data =
+  drawnItems.toGeoJSON();
+
+ localStorage.setItem(
+  'mojePole',
+  JSON.stringify(data)
+ );
+
+}
+
 </script>
 
 </body>
