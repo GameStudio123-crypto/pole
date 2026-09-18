@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moje pole</title>
+
+  <link rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
+    }
+
+    #map {
+      height: 100%;
+      width: 100%;
+    }
+
+    .title {
+      position: absolute;
+      top: 12px;
+      left: 50px;
+      z-index: 1000;
+      background: white;
+      padding: 10px 16px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px #777;
+      font-weight: bold;
+      font-size: 18px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="title">🚜 Moje pole</div>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+  const map = L.map('map').setView([49.55, 16.95], 12);
+
+  L.tileLayer(
+    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap'
+    }
+  ).addTo(map);
+
+  L.marker([49.55, 16.95])
+    .addTo(map)
+    .bindPopup(
+      '<b>Moje pole</b><br>První verze aplikace funguje! 🚜'
+    )
+    .openPopup();
+</script>
+
+</body>
+</html>
