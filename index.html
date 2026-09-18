@@ -2,553 +2,832 @@
 <html lang="cs">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#245c32">
 
 <title>Moje pole</title>
 
-<link rel="stylesheet"
-href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-
-<link rel="stylesheet"
-href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css">
 
 <style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;font-family:Arial,sans-serif;background:#f4f5f1;color:#222}
+button,input,select,textarea{font:inherit}
 
-html,body{
- margin:0;
- height:100%;
- font-family:Arial,sans-serif;
+#map{height:100%;width:100%}
+
+.topbar{
+ position:absolute;top:10px;left:52px;right:10px;z-index:1000;
+ display:flex;justify-content:space-between;align-items:center;
+ pointer-events:none
+}
+.logo{
+ background:white;padding:10px 14px;border-radius:12px;
+ box-shadow:0 2px 10px #555;font-weight:bold;font-size:18px;
+ pointer-events:auto
+}
+.menuButton{
+ background:#245c32;color:white;border:0;border-radius:12px;
+ padding:11px 14px;font-weight:bold;box-shadow:0 2px 10px #555;
+ pointer-events:auto
 }
 
-#map{
- height:100%;
+.bottomInfo{
+ position:absolute;bottom:18px;left:10px;right:10px;z-index:900;
+ background:rgba(255,255,255,.94);padding:9px;border-radius:10px;
+ text-align:center;font-size:13px;box-shadow:0 2px 8px #777
 }
 
-.header{
- position:absolute;
- top:10px;
- left:55px;
- z-index:1000;
- background:white;
- padding:10px 15px;
- border-radius:12px;
- box-shadow:0 2px 10px #555;
- font-weight:bold;
- font-size:18px;
+.panel{
+ position:fixed;z-index:3000;left:0;right:0;bottom:0;
+ background:#f7f7f3;border-radius:20px 20px 0 0;
+ max-height:88vh;overflow:auto;
+ box-shadow:0 -4px 25px rgba(0,0,0,.35);
+ display:none;padding-bottom:30px
+}
+.panel.open{display:block}
+
+.panelHeader{
+ position:sticky;top:0;background:#245c32;color:white;
+ padding:16px;display:flex;align-items:center;
+ justify-content:space-between;z-index:10
+}
+.panelHeader h2{margin:0;font-size:20px}
+.close{
+ border:0;background:white;color:#245c32;border-radius:50%;
+ width:36px;height:36px;font-size:20px;font-weight:bold
 }
 
-.help{
- position:absolute;
- bottom:20px;
- left:10px;
- right:10px;
- z-index:900;
- background:white;
- padding:10px;
- border-radius:10px;
- text-align:center;
- box-shadow:0 2px 8px #555;
+.content{padding:15px}
+.card{
+ background:white;border-radius:14px;padding:14px;margin-bottom:12px;
+ box-shadow:0 1px 6px rgba(0,0,0,.14)
+}
+.fieldTitle{font-size:23px;font-weight:bold;margin-bottom:4px}
+.area{font-size:18px;color:#47614d}
+
+.actions{
+ display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px
+}
+.action{
+ border:0;border-radius:13px;padding:16px 7px;
+ font-weight:bold;font-size:16px;background:#e8eee7
+}
+.action span{display:block;font-size:28px;margin-bottom:5px}
+
+.green{background:#245c32!important;color:white!important}
+.red{background:#a53c32!important;color:white!important}
+.grey{background:#e7e7e7!important;color:#222!important}
+
+label{font-weight:bold;display:block;margin:13px 0 5px}
+input,select,textarea{
+ width:100%;padding:12px;border:1px solid #bbb;border-radius:9px;
+ background:white
+}
+textarea{min-height:80px;resize:vertical}
+
+.saveButton{
+ width:100%;border:0;background:#245c32;color:white;
+ padding:14px;border-radius:11px;font-weight:bold;font-size:17px;
+ margin-top:17px
 }
 
-.popup-button{
- display:block;
- width:100%;
- margin-top:7px;
- padding:8px;
- border:0;
- border-radius:7px;
- background:#2f7d32;
- color:white;
- font-weight:bold;
+.historyItem{
+ border-left:5px solid #608164;padding:10px 10px 10px 13px;
+ margin:10px 0;background:#f3f5f1;border-radius:7px
+}
+.historyType{font-weight:bold;font-size:17px}
+.small{font-size:13px;color:#666;margin-top:4px}
+.total{font-weight:bold;color:#245c32;margin-top:5px}
+
+.fieldListButton{
+ width:100%;text-align:left;border:0;background:white;
+ border-radius:12px;padding:14px;margin-bottom:9px;
+ box-shadow:0 1px 5px #ccc
+}
+.fieldListButton b{font-size:17px}
+
+.back{
+ border:0;background:#e2e7df;border-radius:8px;
+ padding:8px 11px;font-weight:bold;margin-bottom:10px
 }
 
+.toolbar{
+ display:grid;grid-template-columns:1fr 1fr;gap:10px
+}
+.toolbar button{
+ border:0;padding:13px;border-radius:10px;font-weight:bold
+}
+
+.notice{
+ padding:11px;border-radius:9px;background:#fff5ce;
+ margin-bottom:12px;font-size:14px
+}
+
+@media(min-width:800px){
+ .panel{left:auto;width:480px;right:15px;bottom:15px;border-radius:20px;max-height:90vh}
+}
 </style>
 </head>
 
 <body>
 
-<div class="header">
-🚜 Moje pole
-</div>
-
 <div id="map"></div>
 
-<div class="help">
-✏️ Nakresli pole → pojmenuj ho → aplikace spočítá hektary
+<div class="topbar">
+ <div class="logo">🚜 Moje pole</div>
+ <button class="menuButton" onclick="openMenu()">☰ Pole</button>
 </div>
 
+<div class="bottomInfo">
+✏️ Polygonem vlevo můžeš přidat další pole
+</div>
 
-<script
-src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
-</script>
+<div id="panel" class="panel">
+ <div class="panelHeader">
+  <h2 id="panelTitle">Moje pole</h2>
+  <button class="close" onclick="closePanel()">×</button>
+ </div>
+ <div id="panelContent" class="content"></div>
+</div>
 
-<script
-src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js">
-</script>
+<input type="file" id="importFile" accept=".json,application/json" style="display:none">
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
 
 <script>
 
-/* ================================
-MAPA
-================================ */
+/* =========================
+   MAPA
+========================= */
 
-const map =
-L.map('map').setView(
- [49.55,16.95],
- 13
+const map=L.map('map').setView([49.55,16.95],13);
+
+const satellite=L.tileLayer(
+ 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+ {maxZoom:20,attribution:'Esri'}
 );
 
-
-/* LETECKÁ MAPA */
-
-const satellite =
-L.tileLayer(
-
-'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-
-{
- maxZoom:20,
- attribution:'Esri'
-}
-
-);
-
-
-/* KLASICKÁ MAPA */
-
-const normal =
-L.tileLayer(
-
-'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-
-{
- maxZoom:20,
- attribution:'© OpenStreetMap'
-}
-
+const normal=L.tileLayer(
+ 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+ {maxZoom:20,attribution:'© OpenStreetMap'}
 );
 
 satellite.addTo(map);
 
-
-/* ================================
-KATASTR ČÚZK
-================================ */
-
-const katastr =
-L.tileLayer.wms(
-
-'https://services.cuzk.gov.cz/wms/local-km-wms.asp',
-
-{
- layers:'hranice_parcel',
- format:'image/png',
- transparent:true,
- version:'1.3.0',
- maxZoom:22,
- attribution:'ČÚZK'
-}
-
+const katastr=L.tileLayer.wms(
+ 'https://services.cuzk.gov.cz/wms/local-km-wms.asp',
+ {
+  layers:'hranice_parcel',
+  format:'image/png',
+  transparent:true,
+  version:'1.3.0',
+  maxZoom:22,
+  attribution:'ČÚZK'
+ }
 );
 
 katastr.addTo(map);
 
-
-/* PŘEPÍNAČ */
-
 L.control.layers(
-
-{
- '🛰️ Letecká mapa':satellite,
- '🗺️ Klasická mapa':normal
-},
-
-{
- '📐 Hranice parcel':katastr
-}
-
+ {'🛰️ Letecká mapa':satellite,'🗺️ Klasická mapa':normal},
+ {'📐 Hranice parcel':katastr}
 ).addTo(map);
 
 
+/* =========================
+   POLE
+========================= */
 
-/* ================================
-MOJE POLE
-================================ */
-
-const fields =
-new L.FeatureGroup();
-
+const fields=new L.FeatureGroup();
 map.addLayer(fields);
 
+function manualArea(points){
+ let area=0;
+ if(points.length<3)return 0;
+ const R=6378137;
 
-/* ================================
-VÝPOČET PLOCHY
-================================ */
+ for(let i=0;i<points.length;i++){
+  const p1=points[i];
+  const p2=points[(i+1)%points.length];
+
+  area+=(p2.lng-p1.lng)*Math.PI/180*
+   (2+Math.sin(p1.lat*Math.PI/180)+
+   Math.sin(p2.lat*Math.PI/180));
+ }
+
+ return Math.abs(area*R*R/2);
+}
 
 function calculateArea(layer){
+ let latlngs=layer.getLatLngs();
 
- let latlngs =
- layer.getLatLngs()[0];
+ while(Array.isArray(latlngs[0]))latlngs=latlngs[0];
 
- let area =
- L.GeometryUtil ?
- L.GeometryUtil.geodesicArea(latlngs)
- :
- manualArea(latlngs);
-
- return area / 10000;
-
+ return manualArea(latlngs)/10000;
 }
 
-
-/* jednoduchý výpočet plochy */
-
-function manualArea(points){
-
- let area = 0;
-
- if(points.length < 3)
- return 0;
-
- const R = 6378137;
-
- for(
- let i=0;
- i<points.length;
- i++
- ){
-
- let p1 = points[i];
- let p2 =
- points[(i+1)%points.length];
-
- area +=
- (p2.lng-p1.lng) *
- Math.PI/180 *
- (
- 2+
- Math.sin(p1.lat*Math.PI/180)+
- Math.sin(p2.lat*Math.PI/180)
- );
-
+function prepareLayer(layer){
+ if(!layer.feature){
+  layer.feature={type:'Feature',properties:{}};
  }
 
- area =
- area * R * R / 2;
+ const p=layer.feature.properties;
 
- return Math.abs(area);
+ if(!p.id)p.id=Date.now().toString()+Math.random();
+ if(!p.name)p.name='Pole';
+ if(!p.history)p.history=[];
+ if(!p.area)p.area=calculateArea(layer);
 
-}
-
-
-/* ================================
-POPUP POLE
-================================ */
-
-function popup(layer){
-
- let p =
- layer.feature.properties;
-
- let history =
- p.history || [];
-
- let last =
- history.length
- ?
- history[history.length-1]
- :
- null;
-
- let html =
-
- '<h3>🌾 '+p.name+'</h3>'+
-
- '<b>Výměra:</b> '+
- p.area.toFixed(2)+
- ' ha<br>';
-
- if(last){
-
- html +=
- '<br><b>Poslední záznam:</b><br>'+
- last.type+
- ' – '+
- last.text+
- '<br>'+
- last.date;
-
- }
-
- html +=
-
- '<button class="popup-button" '+
- 'onclick="addRecord(\''+
- p.id+
- '\')">'+
-
- '➕ Přidat záznam'+
- '</button>';
-
- layer.bindPopup(html);
-
-}
-
-
-/* ================================
-NOVÉ POLE
-================================ */
-
-map.on(
- L.Draw.Event.CREATED,
- function(e){
-
- let layer=e.layer;
-
- let name =
- prompt(
- 'Název pole:',
- 'Pole'
- );
-
- if(!name)
- name='Pole';
-
- let area =
- calculateArea(layer);
-
- let id =
- Date.now().toString();
-
- layer.feature={
-  type:'Feature',
-
-  properties:{
-   id:id,
-   name:name,
-   area:area,
-   history:[]
-  }
- };
-
- fields.addLayer(layer);
-
- popup(layer);
-
- save();
-
- layer.openPopup();
-
- }
-);
-
-
-/* ================================
-PŘIDAT ZÁZNAM
-================================ */
-
-window.addRecord =
-function(id){
-
- let selected=null;
-
- fields.eachLayer(
- function(layer){
-
- if(
- layer.feature &&
- layer.feature.properties.id==id
- ){
- selected=layer;
- }
-
+ layer.setStyle({
+  weight:3,
+  fillOpacity:.20
  });
 
- if(!selected)
- return;
-
-
- let type =
- prompt(
- 'Co chceš zapsat?\n\n'+
- 'Setí\n'+
- 'Hnojení\n'+
- 'Postřik\n'+
- 'Sklizeň'
- );
-
- if(!type)
- return;
-
-
- let text =
- prompt(
- 'Co bylo použito / zaseto?'
- );
-
- if(!text)
- return;
-
-
- let date =
- prompt(
- 'Datum:',
- new Date().
- toISOString().
- slice(0,10)
- );
-
-
- selected.feature.properties.history.push({
-
- type:type,
- text:text,
- date:date
-
+ layer.on('click',function(){
+  openField(p.id);
  });
+}
 
 
- popup(selected);
-
- save();
-
- selected.openPopup();
-
- alert('Záznam uložen 👍');
-
-};
-
-
-
-/* ================================
-ULOŽENÍ
-================================ */
+/* =========================
+   ULOŽENÍ
+========================= */
 
 function save(){
-
- let data =
- fields.toGeoJSON();
-
  localStorage.setItem(
- 'mojePoleData',
- JSON.stringify(data)
+  'mojePoleData',
+  JSON.stringify(fields.toGeoJSON())
  );
-
 }
 
-
-/* ================================
-NAČTENÍ
-================================ */
-
-let saved =
-localStorage.getItem(
- 'mojePoleData'
-);
+const saved=localStorage.getItem('mojePoleData');
 
 if(saved){
-
  try{
+  const data=JSON.parse(saved);
 
- let data =
- JSON.parse(saved);
-
- L.geoJSON(
-
- data,
-
- {
-
- onEachFeature:
- function(feature,layer){
-
- if(!feature.properties.history)
- feature.properties.history=[];
-
- fields.addLayer(layer);
-
- popup(layer);
-
+  L.geoJSON(data,{
+   onEachFeature:function(feature,layer){
+    layer.feature=feature;
+    prepareLayer(layer);
+    fields.addLayer(layer);
+   }
+  });
+ }catch(e){
+  console.error(e);
  }
-
- }
-
- );
-
- }
- catch(e){
-
- console.log(e);
-
- }
-
 }
 
 
-/* ================================
-KRESLENÍ
-================================ */
+/* =========================
+   KRESLENÍ
+========================= */
 
-const drawControl =
-new L.Control.Draw({
-
- edit:{
-  featureGroup:fields
- },
-
+const drawControl=new L.Control.Draw({
+ edit:{featureGroup:fields},
  draw:{
-
-  polygon:{
-   allowIntersection:false,
-   showArea:true
-  },
-
+  polygon:{allowIntersection:false,showArea:true},
   rectangle:false,
   circle:false,
   circlemarker:false,
   marker:false,
   polyline:false
-
  }
-
 });
 
 map.addControl(drawControl);
 
+map.on(L.Draw.Event.CREATED,function(e){
+ const layer=e.layer;
+ let name=prompt('Jak se pole jmenuje?','Nové pole');
 
-/* změna hranice */
+ if(!name)name='Nové pole';
 
-map.on(
- L.Draw.Event.EDITED,
- function(e){
+ layer.feature={
+  type:'Feature',
+  properties:{
+   id:Date.now().toString(),
+   name:name,
+   area:calculateArea(layer),
+   history:[]
+  }
+ };
 
- e.layers.eachLayer(
- function(layer){
+ prepareLayer(layer);
+ fields.addLayer(layer);
+ save();
+ openField(layer.feature.properties.id);
+});
 
- layer.feature.properties.area =
- calculateArea(layer);
+map.on(L.Draw.Event.EDITED,function(e){
+ e.layers.eachLayer(function(layer){
+  layer.feature.properties.area=calculateArea(layer);
+ });
+ save();
+});
 
- popup(layer);
+map.on(L.Draw.Event.DELETED,function(){
+ save();
+});
 
+
+/* =========================
+   POMOCNÉ FUNKCE
+========================= */
+
+function findLayer(id){
+ let result=null;
+
+ fields.eachLayer(function(layer){
+  if(layer.feature &&
+     String(layer.feature.properties.id)===String(id)){
+   result=layer;
+  }
  });
 
+ return result;
+}
+
+function esc(s){
+ return String(s??'')
+ .replaceAll('&','&amp;')
+ .replaceAll('<','&lt;')
+ .replaceAll('>','&gt;')
+ .replaceAll('"','&quot;');
+}
+
+function today(){
+ return new Date().toISOString().slice(0,10);
+}
+
+function formatDate(d){
+ if(!d)return '';
+ const x=d.split('-');
+ if(x.length!==3)return d;
+ return x[2]+'. '+x[1]+'. '+x[0];
+}
+
+function closePanel(){
+ document.getElementById('panel').classList.remove('open');
+}
+
+function showPanel(title,html){
+ document.getElementById('panelTitle').textContent=title;
+ document.getElementById('panelContent').innerHTML=html;
+ document.getElementById('panel').classList.add('open');
+}
+
+
+/* =========================
+   SEZNAM POLÍ
+========================= */
+
+function openMenu(){
+ let list=[];
+
+ fields.eachLayer(function(layer){
+  list.push(layer.feature.properties);
+ });
+
+ list.sort((a,b)=>a.name.localeCompare(b.name,'cs'));
+
+ let html=`
+ <div class="notice">
+ Data jsou zatím uložená v tomto zařízení.
+ Pravidelně používej <b>Zálohovat data</b>.
+ </div>
+
+ <div class="toolbar">
+  <button class="green" onclick="exportData()">💾 Zálohovat data</button>
+  <button class="grey" onclick="document.getElementById('importFile').click()">📂 Obnovit zálohu</button>
+ </div>
+
+ <h3>🌾 Moje pole (${list.length})</h3>
+ `;
+
+ if(!list.length){
+  html+=`<p>Zatím nemáš uložené žádné pole.</p>`;
+ }
+
+ list.forEach(p=>{
+  html+=`
+   <button class="fieldListButton" onclick="openField('${p.id}')">
+    <b>🌾 ${esc(p.name)}</b><br>
+    ${Number(p.area||0).toFixed(2)} ha
+   </button>
+  `;
+ });
+
+ showPanel('Moje pole',html);
+}
+
+
+/* =========================
+   DETAIL POLE
+========================= */
+
+function openField(id){
+ const layer=findLayer(id);
+ if(!layer)return;
+
+ const p=layer.feature.properties;
+
+ let history=[...(p.history||[])];
+
+ history.sort((a,b)=>
+  String(b.date||'').localeCompare(String(a.date||''))
+ );
+
+ let html=`
+ <button class="back" onclick="openMenu()">← Všechna pole</button>
+
+ <div class="card">
+  <div class="fieldTitle">🌾 ${esc(p.name)}</div>
+  <div class="area">${Number(p.area).toFixed(2)} ha</div>
+
+  <div class="actions">
+   <button class="action" onclick="recordForm('${p.id}','Setí')">
+    <span>🌱</span>Setí
+   </button>
+
+   <button class="action" onclick="recordForm('${p.id}','Hnojení')">
+    <span>🚜</span>Hnojení
+   </button>
+
+   <button class="action" onclick="recordForm('${p.id}','Postřik')">
+    <span>💧</span>Postřik
+   </button>
+
+   <button class="action" onclick="recordForm('${p.id}','Sklizeň')">
+    <span>🌾</span>Sklizeň
+   </button>
+  </div>
+ </div>
+
+ <div class="card">
+  <h3>📋 Historie</h3>
+ `;
+
+ if(!history.length){
+  html+=`<p>Zatím zde není žádný záznam.</p>`;
+ }
+
+ history.forEach(r=>{
+  html+=historyHTML(r,p.area);
+ });
+
+ html+=`
+ </div>
+
+ <div class="card">
+  <button class="saveButton" onclick="renameField('${p.id}')">
+   ✏️ Přejmenovat pole
+  </button>
+ </div>
+ `;
+
+ showPanel(p.name,html);
+}
+
+
+/* =========================
+   FORMULÁŘ
+========================= */
+
+function recordForm(id,type){
+ const layer=findLayer(id);
+ if(!layer)return;
+
+ const p=layer.feature.properties;
+
+ let html=`
+ <button class="back" onclick="openField('${id}')">← Zpět</button>
+
+ <div class="card">
+  <h3>${icon(type)} ${type}</h3>
+
+  <label>Datum</label>
+  <input id="rDate" type="date" value="${today()}">
+ `;
+
+ if(type==='Setí'){
+  html+=`
+   <label>Plodina</label>
+   <input id="rProduct" placeholder="např. pšenice ozimá">
+
+   <label>Odrůda</label>
+   <input id="rVariety" placeholder="např. Julie">
+
+   <label>Výsevek</label>
+   <input id="rDose" type="number" inputmode="decimal" step="0.01" placeholder="např. 180">
+
+   <label>Jednotka</label>
+   <select id="rUnit">
+    <option>kg/ha</option>
+    <option>ks/ha</option>
+    <option>MJ/ha</option>
+   </select>
+  `;
+ }
+
+ if(type==='Hnojení'){
+  html+=`
+   <label>Hnojivo</label>
+   <input id="rProduct" placeholder="např. hnůj, NPK, močovina, ledek">
+
+   <label>Dávka na hektar</label>
+   <input id="rDose" type="number" inputmode="decimal" step="0.01" placeholder="např. 25">
+
+   <label>Jednotka</label>
+   <select id="rUnit">
+    <option>kg/ha</option>
+    <option>t/ha</option>
+    <option>l/ha</option>
+   </select>
+  `;
+ }
+
+ if(type==='Postřik'){
+  html+=`
+   <label>Přípravek</label>
+   <input id="rProduct" placeholder="název přípravku">
+
+   <label>Dávka na hektar</label>
+   <input id="rDose" type="number" inputmode="decimal" step="0.001" placeholder="např. 0.6">
+
+   <label>Jednotka</label>
+   <select id="rUnit">
+    <option>l/ha</option>
+    <option>kg/ha</option>
+    <option>g/ha</option>
+   </select>
+  `;
+ }
+
+ if(type==='Sklizeň'){
+  html+=`
+   <label>Plodina</label>
+   <input id="rProduct" placeholder="např. pšenice">
+
+   <label>Výnos</label>
+   <input id="rDose" type="number" inputmode="decimal" step="0.01" placeholder="např. 7.5">
+
+   <label>Jednotka</label>
+   <select id="rUnit">
+    <option>t/ha</option>
+    <option>kg/ha</option>
+   </select>
+  `;
+ }
+
+ html+=`
+  <label>Poznámka</label>
+  <textarea id="rNote" placeholder="volitelná poznámka"></textarea>
+
+  <button class="saveButton"
+   onclick="saveRecord('${id}','${type}')">
+   💾 Uložit ${type.toLowerCase()}
+  </button>
+ </div>
+
+ <div class="card">
+  <b>Výměra pole:</b> ${Number(p.area).toFixed(2)} ha<br>
+  Celkové množství aplikace dopočítá automaticky.
+ </div>
+ `;
+
+ showPanel(type,html);
+}
+
+
+/* =========================
+   ULOŽENÍ ZÁZNAMU
+========================= */
+
+function saveRecord(id,type){
+ const layer=findLayer(id);
+ if(!layer)return;
+
+ const p=layer.feature.properties;
+
+ const date=document.getElementById('rDate').value;
+ const product=document.getElementById('rProduct')?.value.trim()||'';
+ const dose=parseFloat(
+  String(document.getElementById('rDose')?.value||'')
+  .replace(',','.')
+ );
+ const unit=document.getElementById('rUnit')?.value||'';
+ const note=document.getElementById('rNote')?.value.trim()||'';
+ const variety=document.getElementById('rVariety')?.value.trim()||'';
+
+ if(!product){
+  alert('Napiš prosím, co bylo použito nebo zaseto.');
+  return;
+ }
+
+ const record={
+  id:Date.now().toString(),
+  type:type,
+  date:date,
+  product:product,
+  variety:variety,
+  dose:isNaN(dose)?null:dose,
+  unit:unit,
+  note:note
+ };
+
+ if(!p.history)p.history=[];
+ p.history.push(record);
+
  save();
 
+ alert('✅ Záznam uložen');
+ openField(id);
+}
+
+
+/* =========================
+   HISTORIE
+========================= */
+
+function icon(type){
+ if(type==='Setí')return '🌱';
+ if(type==='Hnojení')return '🚜';
+ if(type==='Postřik')return '💧';
+ if(type==='Sklizeň')return '🌾';
+ return '📝';
+}
+
+function historyHTML(r,area){
+
+ /* kompatibilita se starými záznamy */
+ if(r.text && !r.product){
+  return `
+   <div class="historyItem">
+    <div class="historyType">${icon(r.type)} ${esc(r.type)}</div>
+    <b>${esc(r.text)}</b>
+    <div class="small">${formatDate(r.date)}</div>
+   </div>
+  `;
  }
-);
+
+ let total='';
+
+ if(r.dose!==null && r.dose!==undefined && r.unit){
+  const x=Number(r.dose)*Number(area);
+
+  let totalUnit=r.unit.replace('/ha','');
+
+  total=`
+   <div class="total">
+    Celkem na pole: ${formatNumber(x)} ${esc(totalUnit)}
+   </div>
+  `;
+ }
+
+ return `
+  <div class="historyItem">
+   <div class="historyType">
+    ${icon(r.type)} ${esc(r.type)}
+   </div>
+
+   <b>${esc(r.product||'')}</b>
+   ${r.variety?` – ${esc(r.variety)}`:''}
+
+   ${
+    r.dose!==null && r.dose!==undefined
+    ? `<div>Dávka / výnos: <b>${formatNumber(r.dose)} ${esc(r.unit)}</b></div>`
+    :''
+   }
+
+   ${total}
+
+   <div class="small">
+    📅 ${formatDate(r.date)}
+   </div>
+
+   ${r.note?`<div class="small">📝 ${esc(r.note)}</div>`:''}
+  </div>
+ `;
+}
+
+function formatNumber(n){
+ return Number(n).toLocaleString(
+  'cs-CZ',
+  {maximumFractionDigits:2}
+ );
+}
 
 
-/* smazání */
+/* =========================
+   PŘEJMENOVÁNÍ
+========================= */
 
-map.on(
- L.Draw.Event.DELETED,
- function(){
+function renameField(id){
+ const layer=findLayer(id);
+ if(!layer)return;
+
+ const p=layer.feature.properties;
+
+ const name=prompt('Nový název pole:',p.name);
+
+ if(!name)return;
+
+ p.name=name;
  save();
+ openField(id);
+}
+
+
+/* =========================
+   ZÁLOHA
+========================= */
+
+function exportData(){
+ const data=localStorage.getItem('mojePoleData');
+
+ if(!data){
+  alert('Není co zálohovat.');
+  return;
  }
-);
+
+ const blob=new Blob(
+  [data],
+  {type:'application/json'}
+ );
+
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement('a');
+
+ a.href=url;
+ a.download=
+  'moje-pole-zaloha-'+today()+'.json';
+
+ document.body.appendChild(a);
+ a.click();
+ a.remove();
+
+ URL.revokeObjectURL(url);
+}
+
+
+/* =========================
+   OBNOVENÍ
+========================= */
+
+document.getElementById('importFile')
+.addEventListener('change',function(e){
+
+ const file=e.target.files[0];
+
+ if(!file)return;
+
+ const reader=new FileReader();
+
+ reader.onload=function(){
+
+  try{
+   const data=JSON.parse(reader.result);
+
+   if(!data || data.type!=='FeatureCollection'){
+    throw new Error();
+   }
+
+   if(!confirm(
+    'Obnovit tuto zálohu? Současná data budou nahrazena.'
+   )){
+    return;
+   }
+
+   localStorage.setItem(
+    'mojePoleData',
+    JSON.stringify(data)
+   );
+
+   alert('✅ Záloha obnovena. Aplikace se znovu načte.');
+   location.reload();
+
+  }catch(err){
+   alert('Tento soubor není platná záloha aplikace Moje pole.');
+  }
+
+ };
+
+ reader.readAsText(file);
+});
+
+
+/* otevření všech polí na mapě */
+
+if(fields.getLayers().length){
+ try{
+  map.fitBounds(fields.getBounds(),{padding:[30,30]});
+ }catch(e){}
+}
 
 </script>
-
 </body>
 </html>
