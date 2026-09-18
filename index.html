@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#173f2a">
+<meta name="theme-color" content="#183f2a">
 
 <title>Moje pole</title>
 
@@ -16,47 +16,46 @@ href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css">
 <style>
 
 :root{
- --green:#1f5c3a;
- --green2:#2f7650;
- --light:#f3f6f2;
- --border:#dfe7df;
- --text:#18251d;
- --muted:#6d7c72;
- --orange:#c87824;
+ --green:#205b3a;
+ --green2:#31734d;
+ --bg:#f4f6f3;
+ --border:#dce4dd;
+ --text:#17231b;
+ --muted:#68756c;
+ --orange:#b9681d;
 }
 
 *{box-sizing:border-box}
 
 html,body{
  margin:0;
+ width:100%;
  height:100%;
  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+ background:var(--bg);
  color:var(--text);
- background:var(--light);
 }
 
 button,input,select,textarea{
  font:inherit;
 }
 
-button{
- cursor:pointer;
-}
+button{cursor:pointer}
 
 #map{
  position:absolute;
  inset:0;
 }
 
-/* LEAFLET OVLÁDÁNÍ */
+/* MAPOVÉ OVLÁDÁNÍ */
 
 .leaflet-top.leaflet-left{
- top:82px;
+ top:90px;
  left:8px;
 }
 
 .leaflet-top.leaflet-right{
- top:82px;
+ top:90px;
  right:8px;
 }
 
@@ -64,88 +63,75 @@ button{
 
 .header{
  position:absolute;
+ z-index:2000;
  top:0;
  left:0;
  right:0;
- z-index:1500;
  padding:
-  calc(10px + env(safe-area-inset-top))
-  12px
-  10px;
+ calc(10px + env(safe-area-inset-top))
+ 12px 10px;
  pointer-events:none;
 }
 
 .headerInner{
  max-width:900px;
  margin:auto;
- height:58px;
- background:rgba(255,255,255,.96);
- border-radius:18px;
- box-shadow:0 5px 20px rgba(0,0,0,.18);
+ height:60px;
+ padding:8px 10px 8px 14px;
+
  display:flex;
  align-items:center;
  justify-content:space-between;
- padding:8px 10px 8px 15px;
- pointer-events:auto;
+
+ background:rgba(255,255,255,.96);
+ border-radius:18px;
+
+ box-shadow:
+ 0 5px 22px rgba(0,0,0,.18);
+
  backdrop-filter:blur(10px);
+
+ pointer-events:auto;
 }
 
 .brand{
  display:flex;
  align-items:center;
  gap:9px;
- font-weight:800;
  font-size:19px;
+ font-weight:800;
 }
 
 .brandIcon{
- width:39px;
- height:39px;
- border-radius:12px;
- background:var(--green);
+ width:40px;
+ height:40px;
  display:flex;
  align-items:center;
  justify-content:center;
+ border-radius:12px;
+ background:var(--green);
  font-size:22px;
 }
 
 .headerButtons{
  display:flex;
- gap:7px;
+ gap:8px;
 }
 
 .headerBtn{
+ min-width:44px;
+ height:42px;
  border:0;
  border-radius:12px;
- padding:10px 12px;
- font-weight:700;
- background:#eaf1eb;
+ padding:0 12px;
+ background:#e8efe9;
  color:var(--green);
+ font-weight:750;
 }
 
 .headerBtn.primary{
  background:var(--green);
  color:white;
-}
-
-/* SPODNÍ INFO */
-
-.mapHint{
- position:absolute;
- z-index:1000;
- left:50%;
- transform:translateX(-50%);
- bottom:
-  calc(16px + env(safe-area-inset-bottom));
- background:rgba(24,37,29,.90);
- color:white;
- padding:9px 14px;
- border-radius:20px;
- font-size:13px;
- box-shadow:0 3px 12px rgba(0,0,0,.25);
- max-width:85%;
- text-align:center;
- pointer-events:none;
 }
 
 /* PANEL */
@@ -154,15 +140,22 @@ button{
  position:fixed;
  z-index:5000;
  display:none;
- background:#f5f7f4;
- overflow:auto;
  left:0;
  right:0;
  bottom:0;
+
  max-height:90vh;
+ overflow:auto;
+
+ background:#f5f7f4;
+
  border-radius:24px 24px 0 0;
- box-shadow:0 -7px 35px rgba(0,0,0,.30);
- padding-bottom:env(safe-area-inset-bottom);
+
+ box-shadow:
+ 0 -8px 35px rgba(0,0,0,.28);
+
+ padding-bottom:
+ env(safe-area-inset-bottom);
 }
 
 .panel.open{
@@ -172,20 +165,25 @@ button{
 .panelHeader{
  position:sticky;
  top:0;
- z-index:20;
- background:rgba(31,92,58,.97);
- color:white;
- min-height:63px;
+ z-index:10;
+
+ min-height:62px;
+
  display:flex;
  align-items:center;
  justify-content:space-between;
+
  padding:12px 15px;
+
+ background:rgba(31,91,58,.97);
+ color:white;
+
  backdrop-filter:blur(10px);
 }
 
 .panelHeader h2{
- font-size:19px;
  margin:0;
+ font-size:19px;
 }
 
 .close{
@@ -209,7 +207,9 @@ button{
  border-radius:17px;
  padding:15px;
  margin-bottom:12px;
- box-shadow:0 2px 7px rgba(0,0,0,.06);
+
+ box-shadow:
+ 0 2px 8px rgba(0,0,0,.06);
 }
 
 .fieldTitle{
@@ -218,122 +218,10 @@ button{
 }
 
 .area{
+ margin-top:5px;
  font-size:19px;
- color:var(--green);
- font-weight:700;
- margin-top:5px;
-}
-
-.muted{
- color:var(--muted);
- font-size:13px;
- margin-top:5px;
-}
-
-/* TLAČÍTKA */
-
-.actions{
- display:grid;
- grid-template-columns:1fr 1fr;
- gap:10px;
- margin-top:15px;
-}
-
-.action{
- min-height:86px;
- border:1px solid var(--border);
- border-radius:15px;
- background:#f5f8f5;
- font-weight:750;
- font-size:15px;
- padding:11px 5px;
- color:var(--text);
-}
-
-.action span{
- display:block;
- font-size:27px;
- margin-bottom:5px;
-}
-
-.action.split{
- background:#fff4e8;
- border-color:#f0d0aa;
- color:#8a4b0b;
-}
-
-.green{
- background:var(--green)!important;
- color:white!important;
- border-color:var(--green)!important;
-}
-
-.blue{
- background:#35668c!important;
- color:white!important;
-}
-
-.orange{
- background:var(--orange)!important;
- color:white!important;
-}
-
-.fullButton{
- width:100%;
- border:0;
- border-radius:12px;
- padding:14px;
- margin-top:10px;
- font-weight:750;
- font-size:16px;
-}
-
-.back{
- border:0;
- background:#e5ece6;
- color:var(--green);
- border-radius:10px;
- padding:9px 12px;
- font-weight:700;
- margin-bottom:11px;
-}
-
-/* FORM */
-
-label{
- display:block;
- font-weight:700;
- margin:14px 0 5px;
-}
-
-input,select,textarea{
- width:100%;
- border:1px solid #cbd5cd;
- background:white;
- border-radius:11px;
- padding:12px;
- font-size:16px;
-}
-
-textarea{
- min-height:80px;
- resize:vertical;
-}
-
-/* HISTORIE */
-
-.history{
- border-left:5px solid #6d9b78;
- background:#f5f8f4;
- border-radius:9px;
- padding:11px 12px;
- margin:9px 0;
-}
-
-.total{
- color:var(--green);
  font-weight:800;
- margin-top:5px;
+ color:var(--green);
 }
 
 .small{
@@ -342,16 +230,125 @@ textarea{
  margin-top:4px;
 }
 
-/* SEZNAM POLÍ */
+.notice{
+ padding:12px;
+ margin-bottom:12px;
+ border-radius:12px;
+ background:#fff5d6;
+ border:1px solid #ead99e;
+ line-height:1.45;
+}
+
+/* BUTTONY */
+
+.actions{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:11px;
+ margin-top:15px;
+}
+
+.action{
+ min-height:88px;
+ padding:11px 5px;
+
+ border:1px solid var(--border);
+ border-radius:15px;
+
+ background:#f5f8f5;
+
+ color:var(--text);
+ font-weight:750;
+}
+
+.action span{
+ display:block;
+ font-size:28px;
+ margin-bottom:5px;
+}
+
+.action.split{
+ background:#fff2e4;
+ border-color:#efcfaa;
+ color:#85470e;
+}
+
+.fullButton{
+ width:100%;
+ min-height:48px;
+
+ border:0;
+ border-radius:12px;
+
+ padding:12px 14px;
+ margin-top:9px;
+
+ font-weight:750;
+ font-size:16px;
+}
+
+.green{
+ background:var(--green)!important;
+ color:white!important;
+}
+
+.orange{
+ background:var(--orange)!important;
+ color:white!important;
+}
+
+.red{
+ background:#a43d36!important;
+ color:white!important;
+}
+
+.back{
+ border:0;
+ border-radius:10px;
+ padding:9px 12px;
+ margin-bottom:11px;
+
+ background:#e5ece6;
+ color:var(--green);
+
+ font-weight:750;
+}
+
+/* FORM */
+
+label{
+ display:block;
+ margin:14px 0 5px;
+ font-weight:700;
+}
+
+input,select,textarea{
+ width:100%;
+ padding:12px;
+
+ border:1px solid #cbd5cd;
+ border-radius:11px;
+
+ background:white;
+ font-size:16px;
+}
+
+textarea{
+ min-height:80px;
+}
+
+/* POLE V SEZNAMU */
 
 .fieldButton{
- display:block;
  width:100%;
  text-align:left;
+
  border:1px solid var(--border);
+ border-radius:14px;
+
  background:white;
+
  padding:14px;
- border-radius:13px;
  margin-bottom:8px;
 }
 
@@ -359,99 +356,90 @@ textarea{
  font-size:17px;
 }
 
-/* OSEVNÍ ČÁSTI */
+/* HISTORIE */
 
-.part{
- border-radius:13px;
- padding:13px;
+.history{
  margin:9px 0;
- background:#eef5ed;
- border:1px solid #d7e5d5;
+ padding:11px;
+
+ border-left:5px solid #72977a;
+ border-radius:9px;
+
+ background:#f3f7f3;
 }
 
-.partTitle{
+.total{
+ color:var(--green);
+ font-weight:800;
+ margin-top:5px;
+}
+
+/* REŽIM DĚLENÍ */
+
+.splitBox{
+ position:fixed;
+ display:none;
+
+ z-index:6000;
+
+ left:12px;
+ right:12px;
+
+ bottom:
+ calc(15px + env(safe-area-inset-bottom));
+
+ background:rgba(24,43,31,.95);
+ color:white;
+
+ border-radius:18px;
+
+ padding:14px;
+
+ box-shadow:
+ 0 5px 25px rgba(0,0,0,.35);
+
+ backdrop-filter:blur(10px);
+}
+
+.splitBox.active{
+ display:block;
+}
+
+.splitTitle{
  font-size:17px;
  font-weight:800;
+ margin-bottom:5px;
 }
 
-.partArea{
- color:var(--green);
- font-weight:800;
- margin-top:3px;
+.splitText{
+ font-size:13px;
+ line-height:1.4;
+ opacity:.9;
 }
 
-.partButtons{
- display:flex;
- gap:7px;
- margin-top:9px;
+.splitActions{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:8px;
+ margin-top:10px;
 }
 
-.miniButton{
+.splitAction{
  border:0;
- border-radius:8px;
- padding:8px 10px;
- font-weight:700;
-}
-
-.delete{
- background:#f6e4e2;
- color:#a03932;
-}
-
-.zoom{
- background:#e4eee6;
- color:var(--green);
-}
-
-.notice{
- background:#fff6d9;
- border:1px solid #eedda2;
- padding:11px;
- border-radius:11px;
- font-size:14px;
- margin-bottom:11px;
-}
-
-.drawNotice{
- background:#e8f3ea;
- border:1px solid #c4dec9;
- padding:12px;
- border-radius:12px;
- line-height:1.45;
-}
-
-.yearTitle{
- display:flex;
- justify-content:space-between;
- align-items:center;
- margin-bottom:7px;
-}
-
-.badge{
- background:#e5eee6;
- color:var(--green);
- padding:5px 8px;
- border-radius:9px;
- font-size:12px;
- font-weight:800;
-}
-
-/* BAR */
-
-.bar{
- height:14px;
- background:#e2e5e2;
  border-radius:10px;
- overflow:hidden;
- margin:10px 0 4px;
+ padding:11px;
+ font-weight:750;
 }
 
-.barInside{
- height:100%;
- background:#6e9a72;
+.cancel{
+ background:white;
+ color:#333;
 }
 
-/* TABLET */
+.finish{
+ background:#3c8b5b;
+ color:white;
+}
 
 @media(min-width:760px){
 
@@ -460,12 +448,15 @@ textarea{
   right:18px;
   bottom:18px;
   width:510px;
-  max-height:88vh;
   border-radius:24px;
+  max-height:88vh;
  }
 
- .header{
-  padding-top:12px;
+ .splitBox{
+  left:50%;
+  right:auto;
+  width:460px;
+  transform:translateX(-50%);
  }
 
 }
@@ -478,11 +469,19 @@ textarea{
 <div id="map"></div>
 
 <div class="header">
+
  <div class="headerInner">
 
   <div class="brand">
-   <div class="brandIcon">🚜</div>
-   <div>Moje pole</div>
+
+   <div class="brandIcon">
+    🚜
+   </div>
+
+   <div>
+    Moje pole
+   </div>
+
   </div>
 
   <div class="headerButtons">
@@ -502,13 +501,13 @@ textarea{
   </div>
 
  </div>
+
 </div>
 
-<div id="mapHint" class="mapHint">
-✏️ Nástroje pro kreslení jsou vlevo
-</div>
 
-<div id="panel" class="panel">
+<div
+ id="panel"
+ class="panel">
 
  <div class="panelHeader">
 
@@ -531,33 +530,73 @@ textarea{
 
 </div>
 
+
+<div
+ id="splitBox"
+ class="splitBox">
+
+ <div class="splitTitle">
+  ✂️ Rozdělení pole
+ </div>
+
+ <div
+  id="splitText"
+  class="splitText">
+
+  Klepni na jeden okraj pole
+  a potom na druhý.
+
+ </div>
+
+ <div class="splitActions">
+
+  <button
+   class="splitAction cancel"
+   onclick="cancelSplit()">
+   Zrušit
+  </button>
+
+  <button
+   id="splitReset"
+   class="splitAction finish"
+   onclick="resetSplit()">
+   Začít znovu
+  </button>
+
+ </div>
+
+</div>
+
+
 <input
  type="file"
  id="importFile"
  accept=".json,application/json"
  style="display:none">
 
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf@7/turf.min.js"></script>
+
+
 <script>
 
-/* ==================================================
+/* ======================================================
    MAPA
-================================================== */
+====================================================== */
 
-const map=L.map(
- 'map',
- {
-  zoomControl:true
- }
-).setView(
+const map=
+L.map('map').setView(
  [49.55,16.95],
  13
 );
 
-const satellite=L.tileLayer(
+
+const satellite=
+L.tileLayer(
 
  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
 
@@ -568,7 +607,9 @@ const satellite=L.tileLayer(
 
 );
 
-const normal=L.tileLayer(
+
+const normal=
+L.tileLayer(
 
  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 
@@ -579,35 +620,45 @@ const normal=L.tileLayer(
 
 );
 
+
 satellite.addTo(map);
 
 
-/* ==================================================
-   ČÚZK
-================================================== */
+/* ======================================================
+   KATASTR
+====================================================== */
 
-const katastr=L.tileLayer.wms(
+const katastr=
+L.tileLayer.wms(
 
  'https://services.cuzk.gov.cz/wms/local-km-wms.asp',
 
  {
-  layers:'hranice_parcel,parcelni_cisla',
+  layers:
+  'hranice_parcel,parcelni_cisla',
+
   format:'image/png',
+
   transparent:true,
+
   version:'1.3.0',
+
   maxZoom:22,
+
   attribution:'ČÚZK'
  }
 
 );
 
+
 katastr.addTo(map);
+
 
 L.control.layers(
 
  {
-  '🛰️ Letecká mapa':satellite,
-  '🗺️ Klasická mapa':normal
+  '🛰️ Letecká':satellite,
+  '🗺️ Mapa':normal
  },
 
  {
@@ -621,9 +672,9 @@ L.control.layers(
 ).addTo(map);
 
 
-/* ==================================================
-   HLAVNÍ POLE
-================================================== */
+/* ======================================================
+   VRSTVA POLÍ
+====================================================== */
 
 const fields=
 new L.FeatureGroup();
@@ -631,70 +682,66 @@ new L.FeatureGroup();
 map.addLayer(fields);
 
 
-/* ==================================================
-   OSEVNÍ ČÁSTI NA MAPĚ
-================================================== */
+/* ======================================================
+   VZHLED POLE
+====================================================== */
 
-const cropParts=
-new L.FeatureGroup();
+function fieldStyle(){
 
-map.addLayer(cropParts);
+ return{
 
-let drawingPartForField=null;
+  color:'#26352c',
+
+  weight:5,
+
+  opacity:.95,
+
+  fillColor:'#777777',
+
+  fillOpacity:.28,
+
+  lineJoin:'round'
+
+ };
+
+}
 
 
-/* ==================================================
-   VÝPOČET PLOCHY
-================================================== */
+/* ======================================================
+   VÝMĚRA
+====================================================== */
 
-function polygonArea(points){
+function areaFromGeoJSON(feature){
 
- if(!points || points.length<3)
+ try{
+
+  return(
+   turf.area(feature)/
+   10000
+  );
+
+ }
+ catch(e){
+
   return 0;
 
- const R=6378137;
-
- let area=0;
-
- for(let i=0;i<points.length;i++){
-
-  const p1=points[i];
-  const p2=points[(i+1)%points.length];
-
-  area+=
-   (p2.lng-p1.lng)*
-   Math.PI/180*
-   (
-    2+
-    Math.sin(p1.lat*Math.PI/180)+
-    Math.sin(p2.lat*Math.PI/180)
-   );
  }
 
- return Math.abs(
-  area*R*R/2
- )/10000;
 }
 
 
 function layerArea(layer){
 
- let pts=layer.getLatLngs();
+ return areaFromGeoJSON(
+  layer.toGeoJSON()
+ );
 
- while(
-  Array.isArray(pts[0]) &&
-  !(pts[0] instanceof L.LatLng)
- ){
-  pts=pts[0];
- }
-
- return polygonArea(pts);
 }
 
 
-/* ==================================================
-   PŘÍPRAVA HLAVNÍHO POLE
-================================================== */
+/* ======================================================
+   PŘÍPRAVA POLE
+====================================================== */
 
 function prepareField(layer){
 
@@ -707,38 +754,40 @@ function prepareField(layer){
 
  }
 
+
  const p=
  layer.feature.properties;
+
 
  if(!p.id)
   p.id=uid();
 
+
  if(!p.name)
   p.name='Pole';
+
 
  if(!p.history)
   p.history=[];
 
- if(!p.parts)
-  p.parts=[];
 
- if(!p.area)
-  p.area=layerArea(layer);
+ p.area=
+ layerArea(layer);
 
 
- layer.setStyle({
-  weight:3,
-  opacity:1,
-  fillOpacity:.14
- });
+ layer.setStyle(
+  fieldStyle()
+ );
 
 
  layer.on(
   'click',
-  function(){
+  function(e){
 
-   if(drawingPartForField)
+   if(splitMode)
     return;
+
+   L.DomEvent.stopPropagation(e);
 
    openField(p.id);
 
@@ -748,43 +797,50 @@ function prepareField(layer){
 }
 
 
-/* ==================================================
-   ULOŽENÍ
-================================================== */
+/* ======================================================
+   ULOŽIT
+====================================================== */
 
 function save(){
 
  localStorage.setItem(
+
   'mojePoleData',
+
   JSON.stringify(
    fields.toGeoJSON()
   )
+
  );
 
 }
 
 
-/* ==================================================
-   NAČTENÍ
-================================================== */
+/* ======================================================
+   NAČÍST STARÁ DATA
+====================================================== */
 
-const saved=
+const oldData=
 localStorage.getItem(
  'mojePoleData'
 );
 
-if(saved){
+
+if(oldData){
 
  try{
 
   const data=
-  JSON.parse(saved);
+  JSON.parse(oldData);
+
 
   L.geoJSON(
 
    data,
 
    {
+
+    style:fieldStyle,
 
     onEachFeature:
     function(feature,layer){
@@ -793,9 +849,6 @@ if(saved){
 
      if(!feature.properties.history)
       feature.properties.history=[];
-
-     if(!feature.properties.parts)
-      feature.properties.parts=[];
 
      prepareField(layer);
 
@@ -817,91 +870,9 @@ if(saved){
 }
 
 
-/* ==================================================
-   VYKRESLENÍ OSEVNÍCH ČÁSTÍ
-================================================== */
-
-function refreshCropParts(){
-
- cropParts.clearLayers();
-
- fields.eachLayer(
-  function(fieldLayer){
-
-   const p=
-   fieldLayer.feature.properties;
-
-   (p.parts||[]).forEach(
-    function(part){
-
-     if(
-      !part.geometry ||
-      !part.geometry.coordinates
-     ){
-      return;
-     }
-
-     const feature={
-      type:'Feature',
-      geometry:part.geometry,
-      properties:{}
-     };
-
-     const layer=
-     L.geoJSON(
-      feature,
-      {
-       style:{
-        weight:2,
-        fillOpacity:.36,
-        dashArray:'5,4'
-       }
-      }
-     );
-
-     layer.eachLayer(
-      function(child){
-
-       child.bindTooltip(
-        '🌱 '+part.crop+
-        '<br>'+
-        formatNumber(part.area)+
-        ' ha',
-        {
-         sticky:true
-        }
-       );
-
-       child.on(
-        'click',
-        function(e){
-
-         L.DomEvent.stopPropagation(e);
-
-         openField(p.id);
-
-        }
-       );
-
-      }
-     );
-
-     layer.addTo(cropParts);
-
-    }
-   );
-
-  }
- );
-
-}
-
-refreshCropParts();
-
-
-/* ==================================================
+/* ======================================================
    RUČNÍ KRESLENÍ NOVÉHO POLE
-================================================== */
+====================================================== */
 
 const drawControl=
 new L.Control.Draw({
@@ -915,8 +886,18 @@ new L.Control.Draw({
  draw:{
 
   polygon:{
+
    allowIntersection:false,
-   showArea:true
+
+   showArea:true,
+
+   shapeOptions:{
+    color:'#26352c',
+    weight:5,
+    fillColor:'#777',
+    fillOpacity:.28
+   }
+
   },
 
   rectangle:false,
@@ -929,43 +910,30 @@ new L.Control.Draw({
 
 });
 
-map.addControl(drawControl);
+
+map.addControl(
+ drawControl
+);
 
 
 map.on(
  L.Draw.Event.CREATED,
  function(e){
 
-  const layer=e.layer;
-
-
-  /* kreslíme část uvnitř pole */
-
-  if(drawingPartForField){
-
-   finishCropPart(
-    drawingPartForField,
-    layer
-   );
-
-   drawingPartForField=null;
-
-   document
-   .getElementById('mapHint')
-   .textContent=
-   '✏️ Nástroje pro kreslení jsou vlevo';
-
+  if(splitMode)
    return;
-  }
 
 
-  /* normální nové pole */
+  const layer=
+  e.layer;
+
 
   let name=
   prompt(
-   'Jak se pole jmenuje?',
+   'Název pole:',
    'Nové pole'
   );
+
 
   if(!name)
    name='Nové pole';
@@ -981,11 +949,7 @@ map.on(
 
     name:name,
 
-    area:layerArea(layer),
-
     history:[],
-
-    parts:[],
 
     source:'manual'
 
@@ -1033,36 +997,26 @@ map.on(
 
   save();
 
-  refreshCropParts();
-
  }
 );
 
 
-/* ==================================================
+/* ======================================================
    DETAIL POLE
-================================================== */
+====================================================== */
 
 function openField(id){
 
  const layer=
  findField(id);
 
- if(!layer)return;
+
+ if(!layer)
+  return;
+
 
  const p=
  layer.feature.properties;
-
- const currentYear=
- new Date().getFullYear();
-
- const parts=
- (p.parts||[])
- .filter(
-  x=>
-  Number(x.year)===
-  currentYear
- );
 
 
  let html=`
@@ -1070,36 +1024,44 @@ function openField(id){
  <button
   class="back"
   onclick="openFields()">
+
   ← Všechna pole
+
  </button>
 
 
  <div class="card">
 
   <div class="fieldTitle">
+
    🌾 ${esc(p.name)}
+
   </div>
+
 
   <div class="area">
+
    ${formatNumber(p.area)} ha
+
   </div>
 
-  <div class="muted">
-   ${parts.length
-    ? '✂️ '+parts.length+
-      ' osevních částí v roce '+
-      currentYear
-    : 'Pole zatím není letos rozdělené'}
+
+  <div class="small">
+
+   Samostatné pole
+
   </div>
 
 
   <div class="actions">
 
+
    <button
     class="action split"
-    onclick="openParts('${id}')">
+    onclick="startSplit('${p.id}')">
 
     <span>✂️</span>
+
     Rozdělit pole
 
    </button>
@@ -1107,9 +1069,10 @@ function openField(id){
 
    <button
     class="action"
-    onclick="recordForm('${id}','Setí')">
+    onclick="recordForm('${p.id}','Setí')">
 
     <span>🌱</span>
+
     Setí
 
    </button>
@@ -1117,9 +1080,10 @@ function openField(id){
 
    <button
     class="action"
-    onclick="recordForm('${id}','Hnojení')">
+    onclick="recordForm('${p.id}','Hnojení')">
 
     <span>🚜</span>
+
     Hnojení
 
    </button>
@@ -1127,9 +1091,10 @@ function openField(id){
 
    <button
     class="action"
-    onclick="recordForm('${id}','Postřik')">
+    onclick="recordForm('${p.id}','Postřik')">
 
     <span>💧</span>
+
     Postřik
 
    </button>
@@ -1137,12 +1102,14 @@ function openField(id){
 
    <button
     class="action"
-    onclick="recordForm('${id}','Sklizeň')">
+    onclick="recordForm('${p.id}','Sklizeň')">
 
     <span>🌾</span>
+
     Sklizeň
 
    </button>
+
 
   </div>
 
@@ -1151,7 +1118,9 @@ function openField(id){
 
  <div class="card">
 
-  <h3>📋 Historie</h3>
+  <h3>
+   📋 Historie
+  </h3>
 
   ${historyHTML(p)}
 
@@ -1162,19 +1131,25 @@ function openField(id){
 
   <button
    class="fullButton green"
-   onclick="zoomField('${id}')">
-   🗺️ Ukázat pole na mapě
+   onclick="zoomField('${p.id}')">
+
+   🗺️ Ukázat na mapě
+
   </button>
+
 
   <button
    class="fullButton"
-   onclick="renameField('${id}')">
-   ✏️ Přejmenovat pole
+   onclick="renameField('${p.id}')">
+
+   ✏️ Přejmenovat
+
   </button>
 
  </div>
 
  `;
+
 
  showPanel(
   p.name,
@@ -1184,522 +1159,1202 @@ function openField(id){
 }
 
 
-/* ==================================================
-   ROZDĚLENÍ POLE
-================================================== */
+/* ======================================================
+   REŽIM DĚLENÍ
+====================================================== */
 
-function openParts(id){
+let splitMode=false;
 
- const layer=
- findField(id);
+let splitFieldId=null;
 
- if(!layer)return;
+let splitClicks=[];
 
- const p=
- layer.feature.properties;
+let splitMarkers=[];
 
- if(!p.parts)
-  p.parts=[];
+let splitLine=null;
 
- const years=[
-  ...new Set(
-   p.parts.map(
-    x=>Number(x.year)
-   )
-  )
- ];
 
- const currentYear=
- new Date().getFullYear();
+/* ======================================================
+   ZAČÍT DĚLIT
+====================================================== */
 
- if(!years.includes(currentYear))
-  years.push(currentYear);
-
- years.sort(
-  (a,b)=>b-a
- );
-
-
- let html=`
-
- <button
-  class="back"
-  onclick="openField('${id}')">
-  ← Zpět
- </button>
-
-
- <div class="card">
-
-  <div class="fieldTitle">
-   ✂️ Osevní části
-  </div>
-
-  <div class="area">
-   ${formatNumber(p.area)} ha
-  </div>
-
-  <div class="drawNotice">
-
-   <b>Jak to funguje:</b><br>
-
-   Stiskni tlačítko níže.
-   Panel se zavře a na mapě
-   nakreslíš hranici části pole.
-
-   <br><br>
-
-   Aplikace sama spočítá
-   její výměru.
-
-  </div>
-
-
-  <button
-   class="fullButton orange"
-   onclick="startDrawPart('${id}')">
-
-   ✏️ Nakreslit osevní část na mapě
-
-  </button>
-
- </div>
-
- `;
-
-
- years.forEach(
-  function(year){
-
-   const yearParts=
-   p.parts.filter(
-    x=>Number(x.year)===year
-   );
-
-
-   if(!yearParts.length)
-    return;
-
-
-   const total=
-   yearParts.reduce(
-    (s,x)=>
-    s+Number(x.area||0),
-    0
-   );
-
-
-   const percent=
-   Math.min(
-    100,
-    (total/Number(p.area))*100
-   );
-
-
-   html+=`
-
-   <div class="card">
-
-    <div class="yearTitle">
-
-     <h3 style="margin:0">
-      📅 ${year}
-     </h3>
-
-     <div class="badge">
-      ${formatNumber(total)} ha
-     </div>
-
-    </div>
-
-
-    <div class="bar">
-
-     <div
-      class="barInside"
-      style="width:${percent}%">
-     </div>
-
-    </div>
-
-
-    <div class="small">
-
-     Z celého pole:
-     ${formatNumber(total)}
-     /
-     ${formatNumber(p.area)}
-     ha
-
-    </div>
-
-   `;
-
-
-   yearParts.forEach(
-    function(part){
-
-     html+=`
-
-     <div class="part">
-
-      <div class="partTitle">
-       🌱 ${esc(part.crop)}
-      </div>
-
-      ${
-       part.variety
-       ?
-       `<div class="small">
-        Odrůda:
-        ${esc(part.variety)}
-        </div>`
-       :
-       ''
-      }
-
-      ${
-       part.name
-       ?
-       `<div class="small">
-        📍 ${esc(part.name)}
-        </div>`
-       :
-       ''
-      }
-
-      <div class="partArea">
-       ${formatNumber(part.area)} ha
-      </div>
-
-
-      <div class="partButtons">
-
-       <button
-        class="miniButton zoom"
-        onclick="
-        zoomPart(
-         '${id}',
-         '${part.id}'
-        )">
-
-        🗺️ Ukázat
-
-       </button>
-
-
-       <button
-        class="miniButton delete"
-        onclick="
-        deletePart(
-         '${id}',
-         '${part.id}'
-        )">
-
-        🗑️ Smazat
-
-       </button>
-
-      </div>
-
-     </div>
-
-     `;
-
-   }
-  );
-
-
-  html+=`
-   </div>
-  `;
-
- });
-
-
- showPanel(
-  '✂️ Rozdělení pole',
-  html
- );
-
-}
-
-
-/* ==================================================
-   ZAČÍT KRESLIT ČÁST
-================================================== */
-
-function startDrawPart(fieldId){
+function startSplit(id){
 
  const field=
- findField(fieldId);
-
- if(!field)return;
+ findField(id);
 
 
- drawingPartForField=
- fieldId;
+ if(!field)
+  return;
+
+
+ splitMode=true;
+
+ splitFieldId=id;
+
+ splitClicks=[];
+
+
+ clearSplitGraphics();
 
 
  closePanel();
 
 
  map.fitBounds(
+
   field.getBounds(),
+
   {
-   padding:[35,35]
+   padding:[55,55]
   }
+
  );
 
 
  document
- .getElementById('mapHint')
- .textContent=
- '✂️ Nakresli polygon kolem osevní části';
+ .getElementById('splitBox')
+ .classList.add('active');
 
 
- setTimeout(
-  function(){
+ document
+ .getElementById('splitText')
+ .innerHTML=
 
-   new L.Draw.Polygon(
-    map,
-    {
-     allowIntersection:false,
-     showArea:true,
-     shapeOptions:{
-      weight:3,
-      dashArray:'6,4',
-      fillOpacity:.25
-     }
-    }
-   ).enable();
+ '<b>1/2</b> Klepni poblíž prvního okraje pole. '+
+ 'Bod se automaticky přichytí přesně k hranici.';
 
-  },
-  300
+
+ highlightSplitField(
+  field
  );
 
 }
 
 
-/* ==================================================
-   DOKONČENÍ ČÁSTI
-================================================== */
+/* ======================================================
+   KLIKNUTÍ PŘI DĚLENÍ
+====================================================== */
 
-function finishCropPart(
- fieldId,
- layer
+map.on(
+ 'click',
+ function(e){
+
+  if(!splitMode)
+   return;
+
+
+  const field=
+  findField(
+   splitFieldId
+  );
+
+
+  if(!field)
+   return;
+
+
+  const snapped=
+  snapToFieldBoundary(
+   field,
+   e.latlng
+  );
+
+
+  if(!snapped){
+
+   alert(
+    'Nepodařilo se najít hranici pole.'
+   );
+
+   return;
+
+  }
+
+
+  splitClicks.push(
+   snapped
+  );
+
+
+  const marker=
+  L.circleMarker(
+
+   snapped,
+
+   {
+    radius:8,
+    color:'#ffffff',
+    weight:3,
+    fillColor:'#d4741f',
+    fillOpacity:1
+   }
+
+  ).addTo(map);
+
+
+  splitMarkers.push(
+   marker
+  );
+
+
+  if(
+   splitClicks.length===1
+  ){
+
+   document
+   .getElementById('splitText')
+   .innerHTML=
+
+   '<b>2/2</b> Teď klepni poblíž druhého okraje pole. '+
+   'Mezi body vznikne rovná dělicí čára.';
+
+  }
+
+
+  if(
+   splitClicks.length===2
+  ){
+
+   drawSplitPreview();
+
+   setTimeout(
+    function(){
+
+     performSplit();
+
+    },
+    350
+   );
+
+  }
+
+ }
+);
+
+
+/* ======================================================
+   PŘICHYCENÍ K HRANICI
+====================================================== */
+
+function snapToFieldBoundary(
+ fieldLayer,
+ latlng
 ){
 
+ try{
+
+  const polygon=
+  fieldLayer.toGeoJSON();
+
+
+  const boundary=
+  turf.polygonToLine(
+   polygon
+  );
+
+
+  const point=
+  turf.point(
+   [
+    latlng.lng,
+    latlng.lat
+   ]
+  );
+
+
+  let snapped=null;
+
+
+  if(
+   boundary.type==='FeatureCollection'
+  ){
+
+   let bestDistance=
+   Infinity;
+
+
+   boundary.features.forEach(
+    function(line){
+
+     const candidate=
+     turf.nearestPointOnLine(
+      line,
+      point,
+      {
+       units:'meters'
+      }
+     );
+
+
+     const distance=
+     Number(
+      candidate.properties.dist
+     );
+
+
+     if(
+      distance<
+      bestDistance
+     ){
+
+      bestDistance=
+      distance;
+
+      snapped=
+      candidate;
+
+     }
+
+    }
+   );
+
+  }
+  else{
+
+   snapped=
+   turf.nearestPointOnLine(
+    boundary,
+    point,
+    {
+     units:'meters'
+    }
+   );
+
+  }
+
+
+  if(!snapped)
+   return null;
+
+
+  const c=
+  snapped.geometry.coordinates;
+
+
+  return L.latLng(
+   c[1],
+   c[0]
+  );
+
+ }
+ catch(err){
+
+  console.error(err);
+
+  return null;
+
+ }
+
+}
+
+
+/* ======================================================
+   NÁHLED DĚLICÍ ČÁRY
+====================================================== */
+
+function drawSplitPreview(){
+
+ if(splitLine){
+
+  map.removeLayer(
+   splitLine
+  );
+
+ }
+
+
+ splitLine=
+ L.polyline(
+
+  splitClicks,
+
+  {
+   color:'#e16f1d',
+   weight:6,
+   dashArray:'9,7'
+  }
+
+ ).addTo(map);
+
+}
+
+
+/* ======================================================
+   VLASTNÍ ROZDĚLENÍ POLYGONU
+====================================================== */
+
+function performSplit(){
+
  const field=
- findField(fieldId);
-
- if(!field)
-  return;
-
-
- const p=
- field.feature.properties;
-
-
- const yearText=
- prompt(
-  'Pro který rok je tato část?',
-  new Date().getFullYear()
+ findField(
+  splitFieldId
  );
 
 
- if(yearText===null)
-  return;
+ if(!field){
 
-
- const year=
- parseInt(yearText);
-
-
- if(
-  isNaN(year) ||
-  year<2000 ||
-  year>2100
- ){
-
-  alert(
-   'Neplatný rok.'
-  );
+  cancelSplit();
 
   return;
 
  }
 
 
- const crop=
- prompt(
-  'Co je na této části zaseto?',
-  'Pšenice'
- );
+ if(
+  splitClicks.length!==2
+ ){
 
-
- if(!crop)
   return;
 
-
- const name=
- prompt(
-  'Název části (volitelné):',
-  ''
- )||'';
+ }
 
 
- const variety=
- prompt(
-  'Odrůda (volitelné):',
-  ''
- )||'';
+ try{
+
+  const original=
+  field.toGeoJSON();
 
 
- const area=
- layerArea(layer);
+  /*
+   * Dělicí bod 1 a 2 už leží
+   * přesně na hranici polygonu.
+   */
+
+  const A=[
+   splitClicks[0].lng,
+   splitClicks[0].lat
+  ];
 
 
- if(!p.parts)
-  p.parts=[];
+  const B=[
+   splitClicks[1].lng,
+   splitClicks[1].lat
+  ];
 
 
- p.parts.push({
-
-  id:uid(),
-
-  year:year,
-
-  crop:crop,
-
-  name:name,
-
-  variety:variety,
-
-  area:area,
-
-  geometry:
-   layer.toGeoJSON().geometry
-
- });
+  const results=
+  splitPolygonByBoundaryPoints(
+   original,
+   A,
+   B
+  );
 
 
- save();
+  if(
+   !results ||
+   results.length!==2
+  ){
 
- refreshCropParts();
+   alert(
+    'Tímto směrem se pole nepodařilo rozdělit.\n\n'+
+    'Zkus dělicí čáru znovu a vyber dva různé okraje pole.'
+   );
+
+   resetSplit();
+
+   return;
+
+  }
 
 
- alert(
-  '✅ Část uložena\n\n'+
-  crop+
-  '\n'+
-  formatNumber(area)+
-  ' ha'
- );
+  const oldProps=
+  JSON.parse(
+   JSON.stringify(
+    field.feature.properties
+   )
+  );
 
 
- openParts(fieldId);
+  const area1=
+  areaFromGeoJSON(
+   results[0]
+  );
+
+
+  const area2=
+  areaFromGeoJSON(
+   results[1]
+  );
+
+
+  if(
+   area1<0.001 ||
+   area2<0.001
+  ){
+
+   alert(
+    'Jedna část je příliš malá. Zkus jinou dělicí čáru.'
+   );
+
+   resetSplit();
+
+   return;
+
+  }
+
+
+  const nameA=
+  prompt(
+   'Název první části:',
+   oldProps.name+' A'
+  );
+
+
+  if(nameA===null){
+
+   resetSplit();
+
+   return;
+
+  }
+
+
+  const nameB=
+  prompt(
+   'Název druhé části:',
+   oldProps.name+' B'
+  );
+
+
+  if(nameB===null){
+
+   resetSplit();
+
+   return;
+
+  }
+
+
+  /*
+   * Původní pole odstraníme.
+   */
+
+  fields.removeLayer(
+   field
+  );
+
+
+  /*
+   * Historii zkopírujeme do obou
+   * částí. Staré práce totiž byly
+   * provedené ještě na původním poli.
+   */
+
+
+  addSplitField(
+   results[0],
+   nameA || oldProps.name+' A',
+   oldProps
+  );
+
+
+  addSplitField(
+   results[1],
+   nameB || oldProps.name+' B',
+   oldProps
+  );
+
+
+  save();
+
+
+  finishSplitMode();
+
+
+  alert(
+   '✅ Pole bylo rozděleno.\n\n'+
+   (nameA || oldProps.name+' A')+
+   ': '+
+   formatNumber(area1)+
+   ' ha\n'+
+   (nameB || oldProps.name+' B')+
+   ': '+
+   formatNumber(area2)+
+   ' ha'
+  );
+
+
+  openFields();
+
+ }
+ catch(err){
+
+  console.error(err);
+
+  alert(
+   'Pole se nepodařilo rozdělit. Zkus jinou dělicí čáru.'
+  );
+
+  resetSplit();
+
+ }
 
 }
 
 
-/* ==================================================
-   SMAZAT ČÁST
-================================================== */
+/* ======================================================
+   ROZDĚLENÍ POLYGONU DVĚMA BODY NA OBVODU
 
-function deletePart(
- fieldId,
- partId
+   Princip:
+   - vložíme oba body do obvodu
+   - obvod rozdělíme na dvě cesty
+   - každou cestu uzavřeme dělicí čárou
+====================================================== */
+
+function splitPolygonByBoundaryPoints(
+ feature,
+ A,
+ B
 ){
 
- const field=
- findField(fieldId);
+ if(
+  !feature ||
+  !feature.geometry ||
+  feature.geometry.type!=='Polygon'
+ ){
 
- if(!field)return;
+  return null;
 
-
- if(!confirm(
-  'Smazat tuto osevní část?'
- ))
-  return;
-
-
- const p=
- field.feature.properties;
+ }
 
 
- p.parts=
- (p.parts||[])
- .filter(
-  x=>
-  String(x.id)!==
-  String(partId)
+ /*
+  * Pro zemědělská pole očekáváme
+  * jednoduchý vnější polygon.
+  */
+
+ let ring=
+ feature.geometry.coordinates[0]
+ .map(
+  c=>[c[0],c[1]]
  );
 
 
- save();
+ /*
+  * poslední bod GeoJSON bývá
+  * stejný jako první
+  */
 
- refreshCropParts();
+ if(
+  sameCoord(
+   ring[0],
+   ring[ring.length-1]
+  )
+ ){
 
- openParts(fieldId);
+  ring.pop();
 
-}
-
-
-/* ==================================================
-   ZOOM ČÁST
-================================================== */
-
-function zoomPart(
- fieldId,
- partId
-){
-
- const field=
- findField(fieldId);
-
- if(!field)return;
+ }
 
 
- const part=
- (field.feature.properties.parts||[])
- .find(
-  x=>
-  String(x.id)===
-  String(partId)
+ const insertedA=
+ insertPointIntoRing(
+  ring,
+  A
+ );
+
+
+ ring=
+ insertedA.ring;
+
+
+ let indexA=
+ insertedA.index;
+
+
+ const insertedB=
+ insertPointIntoRing(
+  ring,
+  B
+ );
+
+
+ ring=
+ insertedB.ring;
+
+
+ /*
+  * po vložení B se index A
+  * mohl posunout
+  */
+
+ indexA=
+ findCoordinateIndex(
+  ring,
+  A
+ );
+
+
+ const indexB=
+ findCoordinateIndex(
+  ring,
+  B
  );
 
 
  if(
-  !part ||
-  !part.geometry
- )
-  return;
+  indexA<0 ||
+  indexB<0 ||
+  indexA===indexB
+ ){
+
+  return null;
+
+ }
 
 
- const layer=
- L.geoJSON({
-  type:'Feature',
-  geometry:part.geometry
+ const path1=
+ pathAroundRing(
+  ring,
+  indexA,
+  indexB
+ );
+
+
+ const path2=
+ pathAroundRing(
+  ring,
+  indexB,
+  indexA
+ );
+
+
+ if(
+  path1.length<2 ||
+  path2.length<2
+ ){
+
+  return null;
+
+ }
+
+
+ const ring1=
+ path1.map(copyCoord);
+
+
+ const ring2=
+ path2.map(copyCoord);
+
+
+ /*
+  * uzavření přímou čárou
+  */
+
+ ring1.push(
+  copyCoord(
+   ring1[0]
+  )
+ );
+
+
+ ring2.push(
+  copyCoord(
+   ring2[0]
+  )
+ );
+
+
+ const poly1=
+ turf.polygon(
+  [ring1]
+ );
+
+
+ const poly2=
+ turf.polygon(
+  [ring2]
+ );
+
+
+ /*
+  * odstranění drobných problémů
+  * s orientací / čistotou geometrie
+  */
+
+ const clean1=
+ turf.cleanCoords(
+  poly1
+ );
+
+
+ const clean2=
+ turf.cleanCoords(
+  poly2
+ );
+
+
+ if(
+  turf.area(clean1)<=0 ||
+  turf.area(clean2)<=0
+ ){
+
+  return null;
+
+ }
+
+
+ return[
+  clean1,
+  clean2
+ ];
+
+}
+
+
+/* ======================================================
+   VLOŽIT BOD DO NEJBLIŽŠÍHO SEGMENTU OBVODU
+====================================================== */
+
+function insertPointIntoRing(
+ ring,
+ point
+){
+
+ let bestIndex=0;
+
+ let bestDistance=
+ Infinity;
+
+
+ const p=
+ turf.point(point);
+
+
+ for(
+  let i=0;
+  i<ring.length;
+  i++
+ ){
+
+  const j=
+  (i+1)%ring.length;
+
+
+  const line=
+  turf.lineString(
+   [
+    ring[i],
+    ring[j]
+   ]
+  );
+
+
+  const snapped=
+  turf.nearestPointOnLine(
+   line,
+   p,
+   {
+    units:'meters'
+   }
+  );
+
+
+  const d=
+  Number(
+   snapped.properties.dist
+  );
+
+
+  if(d<bestDistance){
+
+   bestDistance=d;
+
+   bestIndex=i;
+
+  }
+
+ }
+
+
+ const result=
+ ring.map(copyCoord);
+
+
+ /*
+  * pokud bod už existuje,
+  * nepřidáváme ho znovu
+  */
+
+ const existing=
+ findCoordinateIndex(
+  result,
+  point
+ );
+
+
+ if(existing>=0){
+
+  return{
+   ring:result,
+   index:existing
+  };
+
+ }
+
+
+ result.splice(
+  bestIndex+1,
+  0,
+  copyCoord(point)
+ );
+
+
+ return{
+
+  ring:result,
+
+  index:bestIndex+1
+
+ };
+
+}
+
+
+/* ======================================================
+   CESTA PO OBVODU
+====================================================== */
+
+function pathAroundRing(
+ ring,
+ start,
+ end
+){
+
+ const result=[];
+
+ let i=start;
+
+ let safety=0;
+
+
+ while(true){
+
+  result.push(
+   copyCoord(
+    ring[i]
+   )
+  );
+
+
+  if(i===end)
+   break;
+
+
+  i=
+  (i+1)%ring.length;
+
+
+  safety++;
+
+
+  if(
+   safety>
+   ring.length+2
+  ){
+
+   return[];
+
+  }
+
+ }
+
+
+ return result;
+
+}
+
+
+/* ======================================================
+   PŘIDAT NOVOU ČÁST JAKO SAMOSTATNÉ POLE
+====================================================== */
+
+function addSplitField(
+ feature,
+ name,
+ oldProps
+){
+
+ const properties={
+
+  id:uid(),
+
+  name:name,
+
+  history:
+   JSON.parse(
+    JSON.stringify(
+     oldProps.history||[]
+    )
+   ),
+
+  source:'split',
+
+  parentName:
+   oldProps.name,
+
+  splitDate:
+   today()
+
+ };
+
+
+ feature.properties=
+ properties;
+
+
+ L.geoJSON(
+
+  feature,
+
+  {
+
+   style:fieldStyle,
+
+   onEachFeature:
+   function(f,layer){
+
+    layer.feature=f;
+
+    prepareField(layer);
+
+    fields.addLayer(layer);
+
+   }
+
+  }
+
+ );
+
+}
+
+
+/* ======================================================
+   ZVÝRAZNĚNÍ POLE PŘI DĚLENÍ
+====================================================== */
+
+function highlightSplitField(
+ field
+){
+
+ fields.eachLayer(
+  function(layer){
+
+   layer.setStyle(
+    fieldStyle()
+   );
+
+  }
+ );
+
+
+ field.setStyle({
+
+  color:'#df6f1c',
+
+  weight:7,
+
+  fillColor:'#777',
+
+  fillOpacity:.32
+
  });
 
+}
 
- closePanel();
+
+/* ======================================================
+   RESET DĚLENÍ
+====================================================== */
+
+function resetSplit(){
+
+ clearSplitGraphics();
+
+ splitClicks=[];
 
 
- map.fitBounds(
-  layer.getBounds(),
-  {
-   padding:[60,60]
+ const field=
+ findField(
+  splitFieldId
+ );
+
+
+ if(field){
+
+  highlightSplitField(
+   field
+  );
+
+ }
+
+
+ document
+ .getElementById('splitText')
+ .innerHTML=
+
+ '<b>1/2</b> Klepni poblíž prvního okraje pole. '+
+ 'Bod se přichytí k hranici.';
+
+}
+
+
+/* ======================================================
+   ZRUŠIT DĚLENÍ
+====================================================== */
+
+function cancelSplit(){
+
+ finishSplitMode();
+
+}
+
+
+/* ======================================================
+   UKONČIT DĚLICÍ REŽIM
+====================================================== */
+
+function finishSplitMode(){
+
+ clearSplitGraphics();
+
+
+ splitMode=false;
+
+ splitFieldId=null;
+
+ splitClicks=[];
+
+
+ document
+ .getElementById('splitBox')
+ .classList.remove('active');
+
+
+ fields.eachLayer(
+  function(layer){
+
+   layer.setStyle(
+    fieldStyle()
+   );
+
   }
  );
 
 }
 
 
-/* ==================================================
-   FORMULÁŘ ZÁSAHU
-================================================== */
+/* ======================================================
+   SMAZAT POMOCNOU GRAFIKU
+====================================================== */
+
+function clearSplitGraphics(){
+
+ splitMarkers.forEach(
+  function(marker){
+
+   if(
+    map.hasLayer(marker)
+   ){
+
+    map.removeLayer(marker);
+
+   }
+
+  }
+ );
+
+
+ splitMarkers=[];
+
+
+ if(splitLine){
+
+  if(
+   map.hasLayer(splitLine)
+  ){
+
+   map.removeLayer(
+    splitLine
+   );
+
+  }
+
+  splitLine=null;
+
+ }
+
+}
+
+
+/* ======================================================
+   SOUŘADNICE
+====================================================== */
+
+function copyCoord(c){
+
+ return[
+  Number(c[0]),
+  Number(c[1])
+ ];
+
+}
+
+
+function sameCoord(
+ a,
+ b
+){
+
+ if(!a || !b)
+  return false;
+
+
+ return(
+  Math.abs(a[0]-b[0])<
+  0.000000001
+  &&
+  Math.abs(a[1]-b[1])<
+  0.000000001
+ );
+
+}
+
+
+function findCoordinateIndex(
+ ring,
+ point
+){
+
+ for(
+  let i=0;
+  i<ring.length;
+  i++
+ ){
+
+  if(
+   sameCoord(
+    ring[i],
+    point
+   )
+  ){
+
+   return i;
+
+  }
+
+ }
+
+
+ return -1;
+
+}
+
+
+/* ======================================================
+   ZÁZNAM PRÁCE
+====================================================== */
 
 function recordForm(
  id,
@@ -1709,59 +2364,13 @@ function recordForm(
  const field=
  findField(id);
 
- if(!field)return;
+
+ if(!field)
+  return;
 
 
  const p=
  field.feature.properties;
-
-
- const year=
- new Date().getFullYear();
-
-
- const parts=
- (p.parts||[])
- .filter(
-  x=>Number(x.year)===year
- );
-
-
- let targets=`
-
- <option value="">
-  Celé pole –
-  ${formatNumber(p.area)} ha
- </option>
-
- `;
-
-
- parts.forEach(
-  function(part){
-
-   targets+=`
-
-   <option value="${part.id}">
-
-    ${esc(part.crop)}
-
-    ${
-     part.name
-     ?
-     ' – '+esc(part.name)
-     :
-     ''
-    }
-
-    (${formatNumber(part.area)} ha)
-
-   </option>
-
-   `;
-
-  }
- );
 
 
  let form='';
@@ -1790,8 +2399,8 @@ function recordForm(
   <input
    id="dose"
    type="number"
-   inputmode="decimal"
-   step="0.01">
+   step="0.01"
+   inputmode="decimal">
 
 
   <label>Jednotka</label>
@@ -1817,7 +2426,7 @@ function recordForm(
 
   <input
    id="product"
-   placeholder="Hnůj, NPK, močovina, ledek…">
+   placeholder="Hnůj, NPK, močovina…">
 
 
   <label>Dávka na hektar</label>
@@ -1825,8 +2434,8 @@ function recordForm(
   <input
    id="dose"
    type="number"
-   inputmode="decimal"
-   step="0.01">
+   step="0.01"
+   inputmode="decimal">
 
 
   <label>Jednotka</label>
@@ -1860,8 +2469,8 @@ function recordForm(
   <input
    id="dose"
    type="number"
-   inputmode="decimal"
-   step="0.001">
+   step="0.001"
+   inputmode="decimal">
 
 
   <label>Jednotka</label>
@@ -1895,8 +2504,8 @@ function recordForm(
   <input
    id="dose"
    type="number"
-   inputmode="decimal"
-   step="0.01">
+   step="0.01"
+   inputmode="decimal">
 
 
   <label>Jednotka</label>
@@ -1918,19 +2527,19 @@ function recordForm(
  <button
   class="back"
   onclick="openField('${id}')">
+
   ← Zpět
+
  </button>
 
 
  <div class="card">
 
-  <label>
-   Kam záznam patří?
-  </label>
+  <div class="area">
 
-  <select id="targetPart">
-   ${targets}
-  </select>
+   ${formatNumber(p.area)} ha
+
+  </div>
 
 
   <label>Datum</label>
@@ -1977,9 +2586,9 @@ function recordForm(
 }
 
 
-/* ==================================================
-   ULOŽIT ZÁSAH
-================================================== */
+/* ======================================================
+   ULOŽIT ZÁZNAM
+====================================================== */
 
 function saveRecord(
  id,
@@ -1989,7 +2598,9 @@ function saveRecord(
  const field=
  findField(id);
 
- if(!field)return;
+
+ if(!field)
+  return;
 
 
  const p=
@@ -2013,7 +2624,7 @@ function saveRecord(
  }
 
 
- const raw=
+ const rawDose=
  document
  .getElementById('dose')
  ?.value||'';
@@ -2021,53 +2632,9 @@ function saveRecord(
 
  const dose=
  parseFloat(
-  String(raw)
+  String(rawDose)
   .replace(',','.')
  );
-
-
- const partId=
- document
- .getElementById('targetPart')
- ?.value||'';
-
-
- let targetArea=
- Number(p.area);
-
- let targetName=
- 'Celé pole';
-
-
- if(partId){
-
-  const part=
-  (p.parts||[])
-  .find(
-   x=>
-   String(x.id)===
-   String(partId)
-  );
-
-
-  if(part){
-
-   targetArea=
-   Number(part.area);
-
-   targetName=
-   part.crop+
-   (
-    part.name
-    ?
-    ' – '+part.name
-    :
-    ''
-   );
-
-  }
-
- }
 
 
  const record={
@@ -2077,39 +2644,36 @@ function saveRecord(
   type:type,
 
   date:
-   document
-   .getElementById('date')
-   .value,
+  document
+  .getElementById('date')
+  .value,
 
   product:product,
 
   variety:
-   document
-   .getElementById('variety')
-   ?.value.trim()||'',
+  document
+  .getElementById('variety')
+  ?.value.trim()||'',
 
   dose:
-   isNaN(dose)
-   ?
-   null
-   :
-   dose,
+  isNaN(dose)
+  ?
+  null
+  :
+  dose,
 
   unit:
-   document
-   .getElementById('unit')
-   ?.value||'',
+  document
+  .getElementById('unit')
+  ?.value||'',
 
   note:
-   document
-   .getElementById('note')
-   .value.trim(),
+  document
+  .getElementById('note')
+  .value.trim(),
 
-  partId:partId,
-
-  targetArea:targetArea,
-
-  targetName:targetName
+  targetArea:
+  Number(p.area)
 
  };
 
@@ -2118,7 +2682,9 @@ function saveRecord(
   p.history=[];
 
 
- p.history.push(record);
+ p.history.push(
+  record
+ );
 
 
  save();
@@ -2128,9 +2694,9 @@ function saveRecord(
 }
 
 
-/* ==================================================
+/* ======================================================
    HISTORIE
-================================================== */
+====================================================== */
 
 function historyHTML(p){
 
@@ -2148,9 +2714,11 @@ function historyHTML(p){
  if(!history.length){
 
   return`
-   <p class="muted">
-    Zatím tu není žádný záznam.
-   </p>
+
+  <div class="small">
+   Zatím bez záznamů.
+  </div>
+
   `;
 
  }
@@ -2161,8 +2729,6 @@ function historyHTML(p){
 
  history.forEach(
   function(r){
-
-   /* staré záznamy */
 
    if(
     r.text &&
@@ -2196,11 +2762,10 @@ function historyHTML(p){
 
 
    const area=
-   r.targetArea!==undefined
-   ?
-   Number(r.targetArea)
-   :
-   Number(p.area);
+   Number(
+    r.targetArea||
+    p.area
+   );
 
 
    let total='';
@@ -2212,7 +2777,9 @@ function historyHTML(p){
    ){
 
     const amount=
-    Number(r.dose)*area;
+    Number(r.dose)*
+    area;
+
 
     const unit=
     String(r.unit||'')
@@ -2257,18 +2824,6 @@ function historyHTML(p){
 
 
     ${
-     r.targetName
-     ?
-     `<div class="small">
-      📍 ${esc(r.targetName)}
-      • ${formatNumber(area)} ha
-      </div>`
-     :
-     ''
-    }
-
-
-    ${
      r.dose!==null &&
      r.dose!==undefined
      ?
@@ -2285,7 +2840,11 @@ function historyHTML(p){
 
 
     <div class="small">
+
      📅 ${formatDate(r.date)}
+     •
+     ${formatNumber(area)} ha
+
     </div>
 
 
@@ -2312,9 +2871,9 @@ function historyHTML(p){
 }
 
 
-/* ==================================================
+/* ======================================================
    SEZNAM POLÍ
-================================================== */
+====================================================== */
 
 function openFields(){
 
@@ -2341,13 +2900,42 @@ function openFields(){
  );
 
 
+ let totalArea=
+ arr.reduce(
+  (sum,p)=>
+  sum+Number(p.area||0),
+  0
+ );
+
+
  let html=`
+
+ <div class="card">
+
+  <b>
+   🌾 ${arr.length} polí
+  </b>
+
+  <div class="area">
+
+   ${formatNumber(totalArea)} ha
+
+  </div>
+
+  <div class="small">
+
+   Celková evidovaná výměra
+
+  </div>
+
+ </div>
+
 
  <div class="notice">
 
-  💾 Tvoje data jsou zatím
-  uložená v tomto zařízení.
-  Doporučuji pravidelnou zálohu.
+  💾 Data jsou uložená v tomto
+  zařízení. Pravidelně si udělej
+  zálohu.
 
  </div>
 
@@ -2359,6 +2947,7 @@ function openFields(){
    onclick="exportData()">
 
    <span>💾</span>
+
    Záloha
 
   </button>
@@ -2372,6 +2961,7 @@ function openFields(){
    .click()">
 
    <span>📂</span>
+
    Obnovit
 
   </button>
@@ -2380,22 +2970,10 @@ function openFields(){
 
 
  <h3>
-  🌾 Moje pole (${arr.length})
+  Moje pole
  </h3>
 
  `;
-
-
- if(!arr.length){
-
-  html+=`
-   <p>
-    Zatím nemáš uložené
-    žádné pole.
-   </p>
-  `;
-
- }
 
 
  arr.forEach(
@@ -2413,15 +2991,15 @@ function openFields(){
 
     <br>
 
-    ${formatNumber(p.area)} ha
+    ${formatNumber(p.area)}
+    ha
 
     ${
-     p.parts &&
-     p.parts.length
+     p.parentName
      ?
      `<div class="small">
-      ✂️ ${p.parts.length}
-      uložených osevních částí
+      ✂️ vzniklo rozdělením:
+      ${esc(p.parentName)}
       </div>`
      :
      ''
@@ -2443,118 +3021,9 @@ function openFields(){
 }
 
 
-/* ==================================================
-   ZOOM POLE
-================================================== */
-
-function zoomField(id){
-
- const field=
- findField(id);
-
- if(!field)return;
-
-
- closePanel();
-
-
- map.fitBounds(
-  field.getBounds(),
-  {
-   padding:[50,50]
-  }
- );
-
-}
-
-
-/* ==================================================
-   GPS
-================================================== */
-
-function locateMe(){
-
- map.locate({
-  setView:true,
-  maxZoom:17,
-  enableHighAccuracy:true
- });
-
-}
-
-
-map.on(
- 'locationfound',
- function(e){
-
-  L.circleMarker(
-   e.latlng,
-   {
-    radius:8,
-    weight:3,
-    fillOpacity:.8
-   }
-  )
-  .addTo(map)
-  .bindPopup(
-   '📍 Tvoje poloha'
-  )
-  .openPopup();
-
- }
-);
-
-
-map.on(
- 'locationerror',
- function(){
-
-  alert(
-   'Poloha se nepodařila načíst.'
-  );
-
- }
-);
-
-
-/* ==================================================
-   PŘEJMENOVAT
-================================================== */
-
-function renameField(id){
-
- const field=
- findField(id);
-
- if(!field)return;
-
-
- const p=
- field.feature.properties;
-
-
- const name=
- prompt(
-  'Nový název pole:',
-  p.name
- );
-
-
- if(!name)return;
-
-
- p.name=name;
-
- save();
-
- openField(id);
-
-}
-
-
-/* ==================================================
+/* ======================================================
    NAJÍT POLE
-================================================== */
+====================================================== */
 
 function findField(id){
 
@@ -2585,9 +3054,133 @@ function findField(id){
 }
 
 
-/* ==================================================
+/* ======================================================
+   ZOOM
+====================================================== */
+
+function zoomField(id){
+
+ const field=
+ findField(id);
+
+
+ if(!field)
+  return;
+
+
+ closePanel();
+
+
+ map.fitBounds(
+
+  field.getBounds(),
+
+  {
+   padding:[55,55]
+  }
+
+ );
+
+}
+
+
+/* ======================================================
+   GPS
+====================================================== */
+
+function locateMe(){
+
+ map.locate({
+
+  setView:true,
+
+  maxZoom:17,
+
+  enableHighAccuracy:true
+
+ });
+
+}
+
+
+map.on(
+ 'locationfound',
+ function(e){
+
+  L.circleMarker(
+
+   e.latlng,
+
+   {
+    radius:8,
+    weight:3,
+    fillOpacity:.8
+   }
+
+  )
+  .addTo(map)
+  .bindPopup(
+   '📍 Tvoje poloha'
+  )
+  .openPopup();
+
+ }
+);
+
+
+map.on(
+ 'locationerror',
+ function(){
+
+  alert(
+   'Poloha se nepodařila načíst.'
+  );
+
+ }
+);
+
+
+/* ======================================================
+   PŘEJMENOVAT
+====================================================== */
+
+function renameField(id){
+
+ const field=
+ findField(id);
+
+
+ if(!field)
+  return;
+
+
+ const p=
+ field.feature.properties;
+
+
+ const name=
+ prompt(
+  'Nový název:',
+  p.name
+ );
+
+
+ if(!name)
+  return;
+
+
+ p.name=name;
+
+ save();
+
+ openField(id);
+
+}
+
+
+/* ======================================================
    PANEL
-================================================== */
+====================================================== */
 
 function showPanel(
  title,
@@ -2620,9 +3213,9 @@ function closePanel(){
 }
 
 
-/* ==================================================
+/* ======================================================
    ZÁLOHA
-================================================== */
+====================================================== */
 
 function exportData(){
 
@@ -2645,22 +3238,30 @@ function exportData(){
 
  const blob=
  new Blob(
+
   [data],
+
   {
    type:'application/json'
   }
+
  );
 
 
  const url=
- URL.createObjectURL(blob);
+ URL.createObjectURL(
+  blob
+ );
 
 
  const a=
- document.createElement('a');
+ document.createElement(
+  'a'
+ );
 
 
  a.href=url;
+
 
  a.download=
  'moje-pole-zaloha-'+
@@ -2668,24 +3269,32 @@ function exportData(){
  '.json';
 
 
- document.body.appendChild(a);
+ document.body.appendChild(
+  a
+ );
+
 
  a.click();
+
 
  a.remove();
 
 
- URL.revokeObjectURL(url);
+ URL.revokeObjectURL(
+  url
+ );
 
 }
 
 
-/* ==================================================
-   IMPORT
-================================================== */
+/* ======================================================
+   OBNOVIT
+====================================================== */
 
 document
-.getElementById('importFile')
+.getElementById(
+ 'importFile'
+)
 .addEventListener(
  'change',
  function(e){
@@ -2737,8 +3346,13 @@ document
 
 
     localStorage.setItem(
+
      'mojePoleData',
-     JSON.stringify(data)
+
+     JSON.stringify(
+      data
+     )
+
     );
 
 
@@ -2750,7 +3364,6 @@ document
     location.reload();
 
    }
-
    catch(err){
 
     alert(
@@ -2762,16 +3375,18 @@ document
   };
 
 
-  reader.readAsText(file);
+  reader.readAsText(
+   file
+  );
 
  }
 
 );
 
 
-/* ==================================================
+/* ======================================================
    POMOCNÉ
-================================================== */
+====================================================== */
 
 function uid(){
 
@@ -2851,7 +3466,9 @@ function formatDate(d){
 
 function esc(value){
 
- return String(value??'')
+ return String(
+  value??''
+ )
 
  .replaceAll(
   '&',
@@ -2876,9 +3493,9 @@ function esc(value){
 }
 
 
-/* ==================================================
+/* ======================================================
    START
-================================================== */
+====================================================== */
 
 if(
  fields.getLayers().length
@@ -2887,10 +3504,13 @@ if(
  try{
 
   map.fitBounds(
+
    fields.getBounds(),
+
    {
     padding:[40,40]
    }
+
   );
 
  }
